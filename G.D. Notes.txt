@@ -477,14 +477,12 @@ Her çarpmada fonksiyon tetiklenecek ve score değişkeni bir artacak ve onu da 
 Scorer. Mover içinde ana fonksiyonlar olan start ve update var, Scorer içinde ise çarpışmayı
 anlayacak fonksiyon ancak ikisi de aynı anda çalışabiliyor.
 
-<<<<<<< HEAD
-
-=======
 - Rotate ederken E tuşuna basıyorduk, eğer E tuşuna basıp rotate modunu açıp sonra control tuşuna basılı
 tutarak rotate edersen o zaman açılı olarak rotate edebiliyorsun.
 
+- transform.Rotate(2,3,4); bu kod scriptini bağladığın objectin rotate etmesini sağlıyor.
+
 - 
->>>>>>> 9dec6f0 (update the system files)
 
 
 

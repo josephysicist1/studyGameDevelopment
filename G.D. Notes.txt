@@ -491,9 +491,26 @@ anda altındaki bütün objectler aynı oranda hareket edecek.
 - Box Collider checked halde olsa bile "is Trigger" checked durumunda ise herhangi bir collision olmayacak,
 ana object içinden geçecek ancak içinden geçtiği anda kodda bir uyarı göreceğiz.
 
+- Console'a yazdırdıklarını sadece developer görebilir, PS kullanıcıs yazdığın oyunda console'da olanı göremez. 
+Bu kısmı oyunu cogunlukla debug etmek istediğimizde kullanıyoruz.
+
 - 
+using UnityEngine;
 
+public class ObjectHit : MonoBehaviour
+{
 
+    void OnCollisionEnter(Collision collision)
+    {
+        GetComponent<MeshRenderer>().material.color = Color.red; 
+        Debug.Log("Collision happened!");
+    }
+
+}
+Çarpışma olduğunda bu scriptin bağlı olduğu objectin Componentlerinden MeshRenderer içindeki materialın color'ını kırmızı 
+yap.
+
+- 
 
 
 

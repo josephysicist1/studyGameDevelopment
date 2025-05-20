@@ -1,0 +1,553 @@
+
+- Unity yüklerken WebGl Build Support modülünü de yükle, yaratacağın oyunun böylece web'de de oynanmasını 
+sağlayabilirsin
+
+- Unity ne işe yarar: Visual interface for creating games and systems of existing code we can use(physics,
+rendering, audio)
+
+- Unity ve VS Code'u .cs file ile birbirine bağlıyoruz. .cs dosyaları bizim vscodeda yazacağımız
+script dosyaları. 
+
+- Buradaki kodlar game engine'a ne yapılacağını söylüyor.
+
+- Proje oluştururken unity hub içinden project->new Project oluşturuyoruz, burada Universal 3D'yi seçeceğiz. Mobil
+ya da oyunun HD versiyonu için de burada seçenekler mevcut
+
+- İlk Projeyi oluşturduktan sonra unity açılacak ve solda sample scene altında 3 tane game object çıkacak
+Bunlar: main camera, directional light ve global volume
+
+- Bu objectlerde componentler var. Her objectde olan componentlerden biri de "Transform" component, bu component bize
+positionı set etmeye, rotation varsa uygulamada işimize yarayacak.
+
+- Buradaki 3 game object'e ek olarak kendi game objectimizi nasıl yaratacağız. Oradaki boşluğa gelip sağ 
+tıklayıp 3D object'den cube diyeceğiz.
+
+- Mouse'un right click butonu ile object üzerinde kamerayı döndürerek işlem yapabiliyoruz, ve ok butonları 
+ile de ekran üzerinde gidip gelebiliyoruz bunlarla point of view'u değiştirebiliyoruz.
+
+- Object'den çıkan renkli oklar bize 3 boyutlu koordinat düzlemindeki x y z eksenlerini gösteriyor.
+
+- Object oluşturmadan önce ekranda zaten bulunan küçük küp "global volume". Bunun "rendering" ile
+alakası var ancak bu ilerleyen aşamalarda
+
+- Object üzerinde çıkan koordinat düzlemini gösteren oklardan birinin üzerine mousela gelip basılı tutarsan
+o eksende hareket ettirebilirsin
+
+- Ekranın sağ tarafındaki "transform" kısmındaki koordinatları kullanarak da objeleri hareket ettirebilirsin
+
+- Transform kısmında gösterilen position kısmını "W" tuşu, Rotation kısmını "E" tuşu ve Scale kısmını da
+"R" tuşu kontrol ediyor. Bu şekilde istediğimiz pozisyonlarda object ile oynayabiliriz.
+
+- R tuşuna basıp küp olan bir objeyi çekip uzatabilirim.
+
+- Araba'nın parçalarını ayrı ayrı object olarak ekliyoruz. Önce arabanın ana gövdesi için küp ekledik,
+sonra arabanın tekerlekleri için de silindir ekledik. Bunlar solda Sample Scene içinde duruyorlar. Bu 
+silindiri E tuşuna basıp rotate ettirerek yer düzlemine dik hale getiriyoruz.
+
+- Ekranın sol altında Assets kısmı var. Burada olan her şey bilgisayarın hard drive'ında tutuluyor.
+Bizim Project directory'deki Assets kısmı ile hierarchy arasındaki en büyük fark bu. Hierarchy içinde
+game objects var these are the game objects that are located and living within our sample scene and 
+our sample scene is saved in the "Scenes" folder onto our hard drive.
+
+- Simdi Assets içinde yeni bir material oluşturacağız ve adına da colour1 diyeceğiz. Colour1'a tıklayınca
+sağ tarafta inspector içinde bu material'ın özellikleriyle biraz oynayacağız. Mesela burada "Base Map" denilen
+yerde bu material'ın rengini ayarlıyoruz. Ayarlamayı bitirdikten sonra bu materialı sürekleyerek tasarım
+yaptığımız ekrandaki objectlerden birinin üzerine bırakınca object direkt olarak renk değiştiriyor. 
+
+- Silindir olan tekerleğin adını Wheel olarak değiştirdik sonra bunu duplicate ederek 4 tane yapıp
+arabanın ana bodysi içine koordinat düzleminde oynatarak ekleyebiliyoruz.
+
+- Sol tarafta objectleri birden fazla olacak şekilde seçip aynı oranda ekranda koordinat düzleminde
+hareket ettirebilir ya da aynı oranda rotate ettirebilirsin.
+
+- Unity açıldıktan sonra sol üstte Edit kısmı altındaki Preferences'a tıkladıktan sonra External Tools
+altındaki External Script Editor'u VS Code olarak ayarla.
+
+- Assets altında sağa tıklayıp create diyip sonra scripting ve C# Script'e basarak script dosyasını
+Assets altında tanımlıyorsun.
+
+- Bu script dosyasına çift tıklayınca VSCode açılacak.
+
+- Game Design felsefesinde, Player Experience(akıllıca mı, panik mi,acele mi, dikkatli mi hissetmesini
+istiyoruz.), Core Mechanic(Move & Dodge obstacles, burada oyunun ana temasının mekaniği üzerinde
+duruyoruz),Game Loop(Get from A to B)
+
+- Avoiding Obstacle(AO) projesinde önce 3D object plane yaratarak bayağı büyük bir scale a getirdik.
+Sonra assets kısmında material ekledik, bunun "base map"'ine gelerek siyah yaptık ve ekrana doğru
+sürükleyerek plane içine bıraktık, böylece plane siyah oldu.
+
+- Plane'in parlaklığını yani güneş paneli gibi yansıyan siyah tarzından düz siyaha geçmesini
+istersek o zaman sağ tarafta base map altında smoothness var, onu azaltman lazım.
+
+- Assets altında folder yani directory oluşturup materiallerin hepsini oraya atabilirsin, böylece
+oyun dosyalarını daha modüler hale getirebilirsin. Folder oluştururken de assets içindeki boşlukta 
+sağa tıklayarak create diyip sonra folder diyeceksin, isimlendirip sonra şimdiye kadar oluşturduğun
+color materiallerini içine atacaksın.
+
+- Sonrasında da yine assets içinde Scripts isimli başka bir dizin oluşturacaksın. Buraya script
+dosyalarını atacaksın.
+
+- Script oluştururken önce MonoBehaviourScript oluşturduk bu file which is the standard
+unity starting point script. Herhangi bir dosya oluştururken ismini yazmadan önce 
+herhangi bir yere tıklarsan bir daha onu değiştiremezsin o yüzden önce ismini yaz.
+
+- Oluşturdugumuz scripte "Mover" adını vererek bıraktık.
+
+- Oluşturulan script dosyalarını bir object ile bağlamamız gerekiyor. O script dosyasında 
+yazanlar o object'i kontrol edecek ve hareketlerini belirleyecek. Script dosyasını object ile 
+bağlamak için script dosyasına basılı tutarak solda Sample Scene altındaki bağlamak istediğimiz
+object'e sürüklüyoruz ya da object'e tıklayınca sağda açılan inspector altındaki "Add component" 
+kısmına gelerek oradan script dosyasının adını aratıp oradan ekleyebiliyoruz.
+
+- Sonrasında script dosyasına çift tıklayınca vscode açılacak.
+
+- Unity'nin başlangıç noktası olan scriptinde start ve update metodları var. Unity'de 
+start butonuna bastığımızda player'ın bütün componentleri aktif hale gelecek.
+
+- 
+void Start()
+    {
+        transform.Translate();
+    }
+burada yazdıgığımız transform, unity içinde object'e tıklayınca sağda gördüğümüz
+Transform componentini temsil ediyor. Burada metodları kullanarak transform altındaki
+position, rotation ya da scale değerlerini manipüle edebiliriz.
+
+- Translate içinde nereye gitmek istediğini ya da ne kadar hızla gitmek istediğini
+belirtiyorsun.
+
+- Yukarıda Scene yanında bir de yanında konsol işareti bulunan Game sekmesi var. Bu sekme
+oyunun oynanacağı zaman kullanıcı gözünden nasıl görüleceğini gösteriyor. Onu da sürükleyerek
+Scene'in sağ tarafına bırakıp hem geliştirdiğimiz şeyi hem de oyuncu tarafından görülen kısmını
+aynı anda görüyoruz.
+
+- Sol tarafta bulunan main camera objecti, kullanıcının player'a nereden bakacağını belirtmemizi
+sağlıyor.
+
+- Main camerayı da ayarladıktan sonra play butonuna tıklayınca 
+
+void Start()
+    {
+        transform.Translate(1,0,0);
+    }
+
+kodu sayesinde player objecti x ekseninde 1 birim sağa gidiyor. Eğer stop
+butonuna basarsan object başlangıç noktasına geri geliyor.
+
+- Frame is every time our game calculates what should be happening in
+our World. 
+
+- Eğer bu satırı , transform.Translate(1,0,0) , update metodu içinde yazarsak
+o zaman frame hesabı işin içine girecek. Saniyede 60 frame işliyorsa o zaman
+bir saniye içerisinde yukarıdaki kod objecti x ekseninde 60 birim ilerletecek.
+
+-  transform.Translate(0.01,0,0); yazarsan hata alırsın double'ı float'a çevirmen
+gerekiyor bunun için de  transform.Translate(0.01f,0f,0f); yazman lazım.
+
+- C# da integer bir data tanımlarken int hitPoint = 20; diyerek tanımlıyoruz, ya da
+float tanımlamak istediğimizde float speed = 3.8f; 
+Boolean tanımlamak istediğimizde bool isAlive = True; 
+String tanımlamak istediğimizde string myName = "yusuf";
+
+- Oyun içinde kullanacağımız değişkenleri tanımlayacağımız zaman start metodu üstünde ve
+Public Class Mover : MonoBehavior altında tanımlıyoruz.
+
+-
+using UnityEngine;
+
+public class Mover : MonoBehaviour
+{
+    float xValue = 0.01f;
+
+    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    void Start()
+    {
+
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        transform.Translate(xValue,0f,0f);
+    }
+}
+
+- Object'ini hareket ettirmek istediğin koordinata unity arayüzündeki oklardan bakabilirsin.
+
+- Bir değişiklik yapıp play butonuna her bastığımızda Sceneleri ve domainleri yüklüyor, bu da 
+zaman kaybı. Statik değişkenlerle uğraştığımız durumlarda bunu yapmamıza gerek yok. Ancak ilerleyen
+zamanlarda eger bir şeylerin ters gittiğini ya da hata aldığını görürsen o zaman tekrar eski haline
+getirebilirsin. Edit altında Project settings kısmına geleceksin. Orada Editor'e tıklayıp
+en alta ineceksin. "Enter Play Mode Settings" kısmının ayarlarını değiştireceksin. Do not reload domain 
+or scene olanı seçeceksin.
+
+- Start metodu üstünde tanımladığın değişkenleri [SerializedField] float yValue = 0.01f; bu şekilde
+tanımlarsan o zaman bu değişkeni unity içinde görebiliyor ve değişkenin değerini unity içinde değiştirebiliyor
+oluyorsun. Bu script dosyasını bağladığın object'in ekranın sağ tarafındaki inspectorda bu değişkeni 
+görüyorsun. Sağ taraftaki Mover scriptinin altında "Y values" yazıyor. Bu sayede original script kodu içinde
+herhangi bir değişiklik yapmadan sadece unity arayüzünde değişkenleri test edebiliyorsun. Buna da SerializingField
+deniyor.
+
+- SerializedField olarak tanımladığın değişkenleri unity içinde Mouse'unla üzerine basılı tutup sağa sola 
+oynatarak da değerlerini değiştirebilirsin.
+
+- Oyuna "Simple Movement" özelliği katabilmek için birçok yol var. Biri Input System, diğeri position
+of object(bunu ya manuel olarak change location yapıyoruz ya da force uyguluyoruz. Force uyguladığın durumda unity'nin
+fizik kısmını kullanıyoruz.)
+
+- Unity 6 ile birlikte yeni bir input sistemi devreye aldılar ancak bu projede eski input sistemini 
+kullanacağım. Edit->Project Settings->Solda Player'a tıkla ve sağdaki geniş kısımda Other Settings kısmını
+expand et ve alta yakın bir yerde "Active Input Handling" denilen bir kısım var. Burayı "Input System Package Old"'a çek.
+
+- Aynı şekilde Project Settings altında "Input Manager" kısmı var. Burada axislerle ilgili ayarlamaları yapabiliyoruz, yani
+hangi tuşları hangi eksenlere assign edeceğimizi burada belirtiyoruz. Burada horizontal sağ ve sol u kastediyor. Alternative Negative 
+Button derken solu, Alternative Positive Button derken de sağı kastediyor. Aynı şekilde vertical kısmında da tuşlar zaten tanımlanmış
+durumda ancak değiştirmek istediğinde ayarlamaları buradan yapıyorsun.
+
+- Update metodu içinde SerializeField olarak tanımlayamıyoruz çünkü zaten burada dynamic olarak kontrol ediyoruz değişkenleri.
+
+- 
+void Update()
+    {
+        float xValue = Input.GetAxis("Horizontal");
+        float yValue = 0f;
+        float zValue = 0f;
+        transform.Translate(xValue,yValue,zValue);
+    }
+
+Burada x değerini keyborddan sağ ve sol ok tuşlarına basarak ayarlacağımız kodu yazdık. Burada string olarak belirttiğin
+ifadeye dikkat et, eğer horizontal eksende ilerleteceksen aynen bu şekilde yazman lazım yoksa kodun çalışmaz. Bunu yazdıktan sonra
+unity'de play butonuna bastıgında ok tuşlarıyla objectini horizontal eksende pozitif ve negatif yönde ilerletebiliyorsun.
+Dikey eksende ilerletmek için de ikinci satırı float yValue = Input.GetAxis("Vertical"); şeklinde güncelliyorum.
+
+- Buradan çıkan diğer sorun ok tuşlarını kullandıgımızda object çok hızlı bir şekilde hareket ediyor, bu hareket
+hızını ayarlamamız gerekecek. Bunu da Time.deltatime kullanarak yapacagız.
+
+- Unity'de Scene sekmesinin yanındaki Game içinde "Stat" adında bir sekme daha var. Oraya tıklarsan oyun esnasındaki FPS ve CPU ile
+ilgili değerleri anlık olarak göreceksin. Burada ayarlamak istediğimi kısım frame rate. Burası bilgisayardan bilgisayara değişen
+bir değer. Bunu consistent hale getirmek oyun ve oyuncular için önemli.
+
+- Using Time.deltaTime Unity can tell us how long each frame took to execute
+
+- When we multiply something by Time.deltaTime, it makes our game "frame rate independent" which means
+the game behaves the same on fast and slow computers.
+
+- Input.GetAxis("Horizontal") burası bize -1 ile 1 arasında değer döndürüyor.
+
+- 
+ void Update()
+    {
+        float xValue = Input.GetAxis("Horizontal") * Time.deltaTime;
+        float yValue = Input.GetAxis("Vertical") * Time.deltaTime;
+        float zValue = 0f;
+        transform.Translate(xValue,yValue,zValue);
+    }
+
+artık frame rate independent hale getirdik. Eğer objectin bu halindeki hızı yavaş ya da yine de hızlı
+bulduysan o zaman bir değer ile çarp. Örnek olarak
+ float xValue = Input.GetAxis("Horizontal") * Time.deltaTime * 2;
+
+-
+using UnityEngine;
+
+public class Mover : MonoBehaviour
+{
+    [SerializeField] int moveSpeed = 10;
+    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    void Start()
+    {
+
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        float xValue = Input.GetAxis("Horizontal") * Time.deltaTime * moveSpeed;
+        float yValue = Input.GetAxis("Vertical") * Time.deltaTime * moveSpeed;
+        float zValue = 0f;
+        transform.Translate(xValue,yValue,zValue);
+    }
+}
+
+- Player ya da yarattığımız object hareket ederken cameranın da onunla birlikte hareket etmesini
+istiyorsak cinemachine'ı entegre edeceğiz.
+
+- Cinemachine is a unity package. Birden fazla camerayı scene içinde kontrol edebilmemizi sağlıyor,
+camera için kurallar koymamızı sağlıyor
+
+- There is a few different aspects of cinemachine. First of all, we have a "cinemachine brain" which sits
+right on top of our main camera. It figures out what the player should see and then we can have a number 
+of virtual cameras that feed into the brain. Burada brain kararları veriyor, camera2 sıra sende, ya da 1. kamera
+artık sendeyiz gibisinden. Ancak bu oyun özelinde sadece bir tane virtual camera kullanacağız yani kameralar 
+arasında gidip gelmeyeceğiz.
+
+- Önce package manager'dan cinemachine'ı yükleyeceğiz. Sonra virtual kamera ekleyeceğiz sonrasında da 
+we will make sure Cinemachine Brain component has been added to Main Camera and point the virtual camera 
+to follow the player and then tune distance, rotation, damping.
+
+- Package Manager'a yukarıda "Window" kısmından erişiyorsun. Sekme açıldıktan sonra solda "Unity Registry"'e tıkla 
+Burada ulaşabileceğin bütün packageları görüyorsun. Buradan Cinemachine'ı yükle.
+
+- Paketin yüklenip yüklenmediğini kontrol etmek istiyorsan sol altta Project altında Packages kısmını genişlet 
+ve alttaki paketlere bak
+
+- Solda Hierarchy'deki boşluğa yani sample scene altındaki boşluğa sağ tıklayınca altta Cinemachine'i göreceksin, 
+yanında açılan kısımdan da cinemachinecameraya tıklayarak ekle.
+
+- Main camera objectine tıklayınca sağda inspector altında Cinemachine brain'i göreceksin.
+
+- Cinemachine kameranın player objectimizi sürekli takip etmesini istiyorsak, cinemachine cameraya tıklayıp
+sağdaki inspector altında "Tracking Target" kısmında takip etmesini istediğimiz objecti seçeceğiz.
+
+- Kameranın duruş şekillerini cinamachine cameranın inspector'unda Procedural Component altındaki
+position control ile kontrol ediyoruz. "Hard lock to target" seçeneği kamerayı objectin tam üstüne yerleştirirken,
+"third person follow" seçeneği ise kamerayı tam arkasına yerleştiriyor. 
+
+- Rotation control kısmını da "hard look at" seçeneğine çektiğimizde, bu kısım kameraya nerede olursan ol 
+playera bak ancak bunu rotation point of view'dan yap diyoruz. Bunu ayarladıktan sonra cinemachine kamerayı
+üzerindeki koordinat sistemini gösteren okları kullanarak hareket ettiremiyorum, bunu çözmenin yolu da 
+yine inspector altında cinemachine follow kısmında offset ayarının Y değerini manuel olarak değiştirmek.
+
+- "Cinemachine camera hard look at" kısmındaki offset değeri ise playerın tam üstünü hedef almanı değiştiriyor.
+Bunu player üzerinde olan sarı kareden anlayabilirsin. Buradaki offset değerlerini değiştirerek kamerayı player'ın biraz
+üstüne ya da altına odaklamak mümkün.
+
+- Bütün bu ayarlamaları yaptıktan sonra oyunu başlattığımızda kamera objectin hareketlerini biraz gecikmeli olarak
+takip ediyor, bunun ayarlamasını da "damping" kısmından yapacağız.
+
+- Position damping kısmındaki X değerini 0 yaparsan, object x ekseninde hareket ederken kamera da onu herhangi bir gecikme
+yaşamadan takip eder. Buradaki değerlerle eksenlerdeki kamera hareketlerinin gecikmeli olup olmamasını kontrol edebiliyorsun
+
+- Duvar eklemek istediğin zaman cube olarak object ekle ve onu scale ederek istediğin duvar boyutuna getirebilirsin.
+
+- Herhangi bir objectin inspectorı altındaki "Transform" yazısına sağ tıklayıp reset dersen tam ortaya alıyor ve
+scale boyutlarını da 1'e çekiyor. 
+
+- Hierarchy içinde empty object oluşturup bunun da Transform değerlerini sıfırladık. Sonra 4 walls objectini ve 4 obstacle
+objectini bu oluşturduğumuz ve Environment adını verdiğimiz empty objectin üstüne sürükleyerek bu objectin altında 
+gruplandırdık. Bu şekilde modülerliği ve dosyalar üzerindeki kontrolünü artırıyorsun.
+
+- Oyunu çalıştırdığımızda ana objectimiz duvarların ve engellerin içinden geçiyor ancak bunlara çarpmasını istiyoruz.
+Burada colliders'lar devreye girecek.
+
+- Player objectinin inspectorunda mesh renderer kısmı checked halinde. Bunu kapatırsak ana objectimizin(cube) yüzeylerini
+kaplayan turkuaz rengi duvarlar gidecek sadece Box Collider kalacak. Bu da yeşil olarak gösterilen ve küpün iskeleti.
+
+- Çarpışma olabilmesi için sistemin fizik kurallarına uyması lazım. Bunun için de player'ın yani ana objectin bir mass 
+kazamnası lazım. Ana objectin inspectorunda en altta "add component" kısmına gelerek orada "rigid body" ekliyoruz.
+
+- Rigid body içinde mass, linear damping, angular damping ve gravity gibi fiziksel değerler var. Bu objecti dikeyde 
+kaldırıp oyunu başlatırsak gravity etkisiyle yere düşecek.
+
+- Artık duvarlardan ya da engellerden geçemiyor ancak engelden geçmeye zorladığında bir titreşim hareketi ve bazen de 
+bounce back yapıyor. Bunu engellemek, yani direkt olarak duvarın ya da engelin oraya gelince durmasını sağlamak için
+constraint eklememiz gerekiyor, bunu da rigid body içindeki constraints'den yapıyoruz.
+
+- Constraints içinde duvarla collisin durumunda rotational şekilde bounce back hareketini önlemek için rotation kısmındaki
+bütün eksenleri donduruyoruz. Yüzeyde de x ve z ekseninde ilerlediğimiz için herhangi bir collisin durumunda y eksenindeki 
+hareketlerin de durmasını istiyoruz. Bundan dolayı constraint altındaki freeze position kısmından da y'yi checked durumuna
+getiriyoruz.
+
+- Eğer oyundaki bir objectinin inspectorunda box collider yoksa ya da ona hangi collider türü uygunsa ve o collider türü
+yoksa o zaman ana objectin onun içinden geçebilir.
+
+- Bir objectin box collider'ı içinde edit collider'ı actif hale getirirsek object üzerinde yeşil noktalar göreceksin
+Bu noktaları çekip uzatarak object ile collide edeceği yeri mesh'inden farklı konuma getirebilirsin.
+
+- Box collider içinde isTrigger kutucuğu var. Bunu checked hale getirirsen object ile collide etmiyor, yani içinden 
+geçiyor ancak içinden geçtiğinde bir şeyler triggered hale geliyor. Kapıdan geçince karşısına canavar çıkan bir 
+oyun tasarlayacağımız zaman kapıdan geçtiğinin kontrolünün isTrigger ile yapıyoruz. Bu bizim koda bir mesaj gönderecek,
+biz de kapıdan geçince ne olacağını kod bloğunda yazmış olacağız ve orası çalışacak.
+
+- 
+void PrintInstructions()
+    {
+        Debug.Log('Welcome to the game!');
+    }
+Bu kod bloğunun yapacağı şey unity içindeki console'da görünecek. Bu metodun console'da bir kere 
+görünmesini istiyorsam start() metodu içinde çağıracağım.
+
+- 
+using UnityEngine;
+
+public class Mover : MonoBehaviour
+{
+    [SerializeField] int moveSpeed = 10;
+    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    void Start()
+    {
+        PrintInstructions();
+
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        MovePlayer();
+    }
+
+    void PrintInstructions()
+    {
+        Debug.Log("Welcome to the game!");
+    }
+
+    void MovePlayer()
+    {
+        float xValue = Input.GetAxis("Horizontal") * Time.deltaTime * moveSpeed;
+        float yValue = Input.GetAxis("Vertical") * Time.deltaTime * moveSpeed;
+        float zValue = 0f;
+        transform.Translate(xValue,yValue,zValue);
+    }
+
+
+}
+
+Bu işlemlerin metodlar altında bu şekilde yapılması ve gerektiğinde o metodların çağrılması
+kodun daha modüler ve üzerinde daha cok kontrol sahibi olmamızı sağlıyor
+
+- Şimdi de oyun içindeki engellere ya da duvara çarpında console'da uyarı verdirten bir script 
+yazacağız. Önce "ObjectHit" isminde bir script oluşturup bunu environmenttaki bütün obstacle ve 
+wallara bağlayacağız. Burada da oluşturacağımız script tipi monobehaviourscript.
+
+- Birden fazla object'e aynı scripti bağlarken objectlere ctrlye basılı tutarken tıkla ve sonra 
+sağ altta add component kısmından script adını yani ObjectHit'i arat ve ekle.
+
+- Buradaki script dosyasını açtıktan sonra start ve update metodlarını silebilirsin. Bunlarla işimiz
+yok. Bunun yerine onCollisionEnter metodunu yazman lazım.
+
+- 
+void OnCollisionEnter(Collision collision)
+    {
+        
+    }
+buradaki metodda şimdilik parametreye ihtiyacımız yok, çünkü sadece çarpma bilgisini toplayacağız ancak
+kimin obstacle'a ya da Wall'a çarptığını öğrenmek istiyorsak o zaman işte buradaki parametre işimize 
+yarayacak.
+
+- 
+using UnityEngine;
+
+public class ObecjtHit : MonoBehaviour
+{
+     void OnCollisionEnter(Collision collision)
+    {
+        Debug.Log("Something hit me!!!");
+    }
+}
+
+Bunu yazdıktan sonra oyunu başlattığımızda duvara carptıgımızda bu mesajı görüyoruz ancak duvara
+çarpma yönündeki oka basılı tuttuğumuzda bu mesaj yüzlerce kez consoleda yazdırılmıyor.
+Eğer objecti duvardan biraz uzaklaştırıp tekrar çarparsak o zaman yine bu mesajı görüyoruz.
+
+- Şimdi de ana object bir yere carptıgında o çarptığı object renk değiştirsin istiyoruz. Bunu nasıl
+yapacağız ? Öncelikli olarak bir objectin componentlerine bakacağız. Mesh renderer, box collider ve script var.
+Eğer bir objecte script bağlı ise componentler hakkında bilgi çekebiliriz. Mesela duvarın mesh renderer'ının altında
+material kısmı var orada da blue kısmı var. Duvara script bağlı olduğu için, burayı script üzerinden değiştirebiliriz.
+
+- 
+ void OnCollisionEnter(Collision collision)
+    {
+        GetComponent<MeshRenderer>().material.color = Color.red;
+        Debug.Log("Something hit me!!!");
+    }
+
+GetComponent<MeshRenderer>().material.color = Color.red; bu kod satırı mesh renderer
+componentini al ve onun material altındaki color'ını değiştir diyor. Burada GetComponent
+keyword'üne dikkat et, bunu cok kullanacaksın.
+
+- Şimdi de player'ın çarpma sayısını console'da yazdırmak istiyoruz ya da diğer bir deyişle
+score tutmak istiyoruz. Bunun için önce Scorer diye bir script oluşturup ana objectimize bağlıyoruz.
+Sonrasında da içinde onCollisionEnter metodunu oluşturuyoruz ve çarpma sayısını integer değer ile orada
+tutuyoruz.
+
+using UnityEngine;
+
+public class Scorer : MonoBehaviour
+{
+    int Score = 0;
+    void OnCollisionEnter(Collision collision)
+    {
+        Score++;
+        Debug.Log("You bumped into this many times: "+ Score );
+    }
+}
+Her çarpmada fonksiyon tetiklenecek ve score değişkeni bir artacak ve onu da console'da yazdıracak.
+
+- Burada dikkat et, player objectine yani ana object'e iki tane script bağlı biri Mover, diğeri de 
+Scorer. Mover içinde ana fonksiyonlar olan start ve update var, Scorer içinde ise çarpışmayı
+anlayacak fonksiyon ancak ikisi de aynı anda çalışabiliyor.
+
+<<<<<<< HEAD
+
+=======
+- Rotate ederken E tuşuna basıyorduk, eğer E tuşuna basıp rotate modunu açıp sonra control tuşuna basılı
+tutarak rotate edersen o zaman açılı olarak rotate edebiliyorsun.
+
+- 
+>>>>>>> 9dec6f0 (update the system files)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

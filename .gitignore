@@ -1,0 +1,98 @@
+<<<<<<< HEAD
+
+Library/
+Temp/
+Obj/
+Build/
+Builds/
+Logs/
+MemoryCaptures/
+<<<<<<< HEAD
+UserSettings/  
+=======
+UserSettings/ 
+>>>>>>> ca5e6a2f6e34c5ec35ac694faf0061a747dbd6a7
+.idea/
+.vscode/
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# Mac OS
+.DS_Store
+
+# Windows
+Thumbs.db
+desktop.ini
+=======
+# Derleme çıktıları
+build/
+bin/
+obj/
+*.exe
+*.apk
+*.aab
+*.ipa
+*.dll
+*.so
+*.dylib
+
+# IDE ayar dosyaları
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Sistem dosyaları
+.DS_Store
+Thumbs.db
+
+# Git LFS dışı büyük dosyalar
+*.psd
+*.zip
+*.rar
+*.7z
+
+# Unity
+Library/
+Temp/
+Logs/
+Obj/
+MemoryCaptures/
+Builds/
+
+# Godot
+.import/
+.export/
+.export_template/
+*.import
+*.godot_export
+
+# Unreal Engine
+Binaries/
+DerivedDataCache/
+Intermediate/
+Saved/
+
+# Flutter/Android
+.dart_tool/
+.packages
+.pub-cache/
+build/
+android/.gradle/
+ios/Flutter/Flutter.framework
+ios/Pods/
+>>>>>>> 9dec6f0 (update the system files)

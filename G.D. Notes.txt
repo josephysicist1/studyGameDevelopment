@@ -482,7 +482,10 @@ tutarak rotate edersen o zaman açılı olarak rotate edebiliyorsun.
 
 - transform.Rotate(2,3,4); bu kod scriptini bağladığın objectin rotate etmesini sağlıyor.
 
-- 
+- Project Settings -> Player kısmından Active Input Handling'i old ya da both kısmına çekmezsen update metodu
+içinde tanımladığın float x = Input.GetAxis("Horizontal"); satırı hata verdiriyor. Bu kod eski sisteme ait.
+
+
 
 
 

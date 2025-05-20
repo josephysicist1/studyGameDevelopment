@@ -485,10 +485,13 @@ tutarak rotate edersen o zaman açılı olarak rotate edebiliyorsun.
 - Project Settings -> Player kısmından Active Input Handling'i old ya da both kısmına çekmezsen update metodu
 içinde tanımladığın float x = Input.GetAxis("Horizontal"); satırı hata verdiriyor. Bu kod eski sisteme ait.
 
+- Empty game object oluşturup oyundaki duvarlar ve engelleri bunun altına koyarsan, o game objecti hareket ettirdiğin
+anda altındaki bütün objectler aynı oranda hareket edecek.
 
+- Box Collider checked halde olsa bile "is Trigger" checked durumunda ise herhangi bir collision olmayacak,
+ana object içinden geçecek ancak içinden geçtiği anda kodda bir uyarı göreceğiz.
 
-
-
+- 
 
 
 

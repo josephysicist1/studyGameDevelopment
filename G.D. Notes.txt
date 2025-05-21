@@ -542,9 +542,80 @@ public class Dropper : MonoBehaviour
 }
 
 - 
+using UnityEngine;
 
+public class Dropper : MonoBehaviour
+{
+    [SerializeField] float timeToWait = 2f;
+    void Start()
+    {
+        
+    }
+    void Update()
+    {
 
+        if (Time.time > timeToWait)
+        {
+            Debug.Log("Start falling!!!");
+        }   
+    }
+}
 
+- Time olayını hallettikten sonra şimdi de objectin düşebiliyor olması lazım. Bununn için de dropper objectine
+rigid body componenti ekleyeceğiz. Ancak burada object düşmeden önce invisible olmasını istiyoruz, bunun için de
+mesh renderer ve box collider componentlerini disabled etmemiz gerekiyor. Bunu da kodda GetComponent kullanarak 
+yapacağız. Aynı şekilde gravity özelliğini de GetComponent kullanarak enabled ya da disabled yapacağız.
+
+- GetComponent<MeshRenderer>().enabled = false;
+bu kod satırını start() fonksiyonu içinde yazarak MeshRenderer özelliğini en başta disabled ediyoruz.
+
+- MeshRenderer'ı bir değişkende tutmak istediğimizde "caching" terminolojisini kullanıyoruz.
+
+- (Def) caching is a technique of storing frequently used data or information in memory, so that it can 
+easily be accessed when needed.
+
+- MashRenderer'ı bir değişkende tutmak istediğimizde oluşturacağımız değişkenin tipi MeshRenderer olacak. Flutter'da
+object tiplerini o objectleri tanımlarken kullandığımız zamanki durum burada da aynen geçerli.
+
+-
+public class Dropper : MonoBehaviour
+{
+    [SerializeField] float timeToWait = 2f;
+    MeshRenderer myMeshRenderer;
+    void Start()
+    {
+        myMeshRenderer = GetComponent<MeshRenderer>();
+        myMeshRenderer.enabled = false;
+    }
+…
+Burada MeshRenderer'ın bütün içeriğini artık myMeshRenderer değişkeninde tutuyoruz
+
+- Aynı şekilde caching i rigid body'e de uygulayacağız.
+
+using UnityEngine;
+
+public class Dropper : MonoBehaviour
+{
+    [SerializeField] float timeToWait = 2f;
+    MeshRenderer myMeshRenderer;
+    Rigidbody myRigidBody;
+    void Start()
+    {
+        myMeshRenderer = GetComponent<MeshRenderer>();
+        myMeshRenderer.enabled = false;
+        myRigidBody = GetComponent<Rigidbody>();
+    }
+    void Update()
+    {
+
+        if (Time.time > timeToWait)
+        {
+            Debug.Log("Start falling!!!");
+        }   
+    }
+}
+
+-
 
 
 

@@ -721,7 +721,71 @@ public class Scorer : MonoBehaviour
     }
 }
 
-- 
+- Şimdi de obstacleların rotate etmesini istiyoruz.
+
+- Şöyle bir sorunla karşılaştın: Bir object oluşturduktan sonra scale ederken bir eksende continuous şeklinde scale edememeye başladın
+Bunun sebebi de şu, oyun ekranının yukarısında Toggle Grid Snaping denilen bir yer var, grid önünde mıknatıs işareti bulunan bir yapı.
+Eğer burayı aktif edersen scale işlemini continuous halde yapmak yerine blok blok yapıyor. Yani bir anda 3 blok ya da 4 blok artırıyor.
+Burayı şimdilik kapalı tut.
+
+- Rotate için object oluşturduktan sonra bu objecti ObjectHit.cs ile bağlıyoruz sonra da Spinner.cs scripti oluşturup onu da 
+objecte bağlıyoruz.
+
+- Bir objecting rotate eksenini nasıl anlıyoruz. Object dönerken oluşturduğu hayali yüzeyin normal vektörü o objectin unitydeki rotation ekseninin ne 
+olduğunu veriyor.
+
+using UnityEngine;
+
+public class Spinner : MonoBehaviour
+{
+    [SerializeField]float xRotation = 0f;
+    [SerializeField]float yRotation = 0.5f;
+    [SerializeField]float zRotation = 0f;
+
+    void Start()
+    {
+        
+    }
+    void Update()
+    {
+        transform.Rotate(xRotation,yRotation,zRotation);
+    }
+}
+
+
+- Şimdi de bir sphere object ekledik ve projectile yapmasını sağlayacağız. Bunun hareket için Vector3 kullanacağız.
+We can store Vector3 as a variable.  C’est une variable (par exemple, la position) qui contient trois valeurs (x, y, z)
+Move Towards() metodunu da aynı zamanda kullanacağız. We can use MoveTowards() to make an object move towards a specific point 
+in the World. 
+
+- MoveTowards() 3 parametre ister,
+	1- o anki pozisyonu(current)
+	2- gideceği noktanın pozisyonu(target)
+	3- maxDistanceDelta = distance to move each time(how much to move each time we call MoveTowards())
+MoveTowards(actuel, cible, distanceMaximale)
+
+- transform.position = Vector3.MoveTowards(transform.position, playerPosition, 1f);
+Bu kod satırını update metodu içinde yazıyoruz ve bu kod satırı sayesinde update metodu her çalıştığında scriptin bağlı
+olduğu object player'ın konumuna doğru gidecek. Soldaki ifade scriptin bağlı olduğu objectin konumunu tanımlıyor.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

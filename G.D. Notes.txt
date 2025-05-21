@@ -659,7 +659,69 @@ bütün objectler untagged şeklinde duruyor.
 istiyoruz, dropper objectine rigid body eklediğimiz için ground'a değdiği anda o da renk değiştiriyor. Bu durumu değiştirmemiz lazım.
 
 - 
+using UnityEngine;
 
+public class ObjectHit : MonoBehaviour
+{
+
+    void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.tag == "Player")
+        {
+            GetComponent<MeshRenderer>().material.color = Color.black; 
+
+        }        
+    }
+
+}
+Bu kod bloğunda eğer collision'ı gerçekleştiren game objectin tag'i "Player" ise renk değişimi gözlensin demek istedik. Artık yukarıdan 
+düşen ve ground ile çarpışan objectin rengi değişmeyecek.
+
+
+- 
+using UnityEngine;
+
+public class ObjectHit : MonoBehaviour
+{
+
+    void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.tag == "Player")
+        {
+            GetComponent<MeshRenderer>().material.color = Color.black;
+            gameObject.tag = "Hit";
+
+        }        
+    }
+}
+Bu kod bloğundaki şu satırla gameObject.tag = "Hit"; 
+şunu demek istiyoruz, oyunda ana objectimin çarptığı bütün objectlerin 
+taglerini "Hit" olarak oluştur. Burada dikkat etmen gereken asıl nokta
+eğer "Hit" değerini sen Unity içinde sağ taraftaki Tag bloğuna eklemezsen
+o zaman kodda hata alıyorsun. "Hit" değerine sağda bulunan tagler arasına ekle
+ondan sonra kodda düzenlemelerini yap
+
+- Şimdi de daha önce çarptığım bir objecte bir daha çarpmam durumunda scoreKeeper'ın tekrar artmasını
+istemiyorum. Bunu da Scorer.cs scriptinde
+
+using UnityEditor.Rendering;
+using UnityEngine;
+
+public class Scorer : MonoBehaviour
+{
+    [SerializeField] int scoreKeeper = 0;
+    void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.tag != "Hit")
+        {
+            scoreKeeper++;
+            Debug.Log("You bumped into " + scoreKeeper + " this many times");
+
+        }
+    }
+}
+
+- 
 
 
 

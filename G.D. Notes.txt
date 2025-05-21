@@ -510,11 +510,38 @@ public class ObjectHit : MonoBehaviour
 Çarpışma olduğunda bu scriptin bağlı olduğu objectin Componentlerinden MeshRenderer içindeki materialın color'ını kırmızı 
 yap.
 
+- Time.time entegre edeceğiz, bu şekilde bizim game object oyunun başından beri ne kadar zaman geçtiğini bilecek
+
+- Şimdi burada dropping object oluşturacağız. Bu objecti oluşturup iyice havaya kaldırıyoruz. Burada dikkat et ,
+objectin gölgesi ground'a düşüyor. Bu durum oyundaki "directional light" ile alakalı. Directional light objectine tıklayıp
+x, y ya da z eksenlerinde hareket ettirirsen gölgede bir değişiklik olmuyor ama rotational bir hareket yaptırırsan gölgenin
+konumunda bir değişiklik oluyor
+
+- Burada şöyle bir şey yapmak istiyoruz, oyun başladıktan 3 saniye sonra havada asılı bıraktığımız object yere düşsün.
+Bunun için de Time.time kullanacağız ve sonrasında if yapısı ile 3 saniye geçtiğini kontrol ettikten sonra 3 saniyeliğine 
+gravity'i tekrar enable durumuna çekeceğiz.
+
+- Burada önce Dropper.cs scriptini oluşturduk ve Dropper objectimize bağladık sonra her bir framede console a ne kadar zaman geçtiğini göstermek 
+için alttaki kodu yazdık
+
+using UnityEngine;
+
+public class Dropper : MonoBehaviour
+{
+    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    void Start()
+    {
+        
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        Debug.Log(Time.time);
+    }
+}
+
 - 
-
-
-
-
 
 
 

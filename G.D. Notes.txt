@@ -473,6 +473,7 @@ public class Scorer : MonoBehaviour
 }
 Her çarpmada fonksiyon tetiklenecek ve score değişkeni bir artacak ve onu da console'da yazdıracak.
 
+
 - Burada dikkat et, player objectine yani ana object'e iki tane script bağlı biri Mover, diğeri de 
 Scorer. Mover içinde ana fonksiyonlar olan start ve update var, Scorer içinde ise çarpışmayı
 anlayacak fonksiyon ancak ikisi de aynı anda çalışabiliyor.
@@ -509,6 +510,7 @@ public class ObjectHit : MonoBehaviour
 }
 Çarpışma olduğunda bu scriptin bağlı olduğu objectin Componentlerinden MeshRenderer içindeki materialın color'ını kırmızı 
 yap.
+
 
 - Time.time entegre edeceğiz, bu şekilde bizim game object oyunun başından beri ne kadar zaman geçtiğini bilecek
 
@@ -561,6 +563,7 @@ public class Dropper : MonoBehaviour
     }
 }
 
+
 - Time olayını hallettikten sonra şimdi de objectin düşebiliyor olması lazım. Bununn için de dropper objectine
 rigid body componenti ekleyeceğiz. Ancak burada object düşmeden önce invisible olmasını istiyoruz, bunun için de
 mesh renderer ve box collider componentlerini disabled etmemiz gerekiyor. Bunu da kodda GetComponent kullanarak 
@@ -590,6 +593,7 @@ public class Dropper : MonoBehaviour
 …
 Burada MeshRenderer'ın bütün içeriğini artık myMeshRenderer değişkeninde tutuyoruz
 
+
 - Aynı şekilde caching i rigid body'e de uygulayacağız.
 
 using UnityEngine;
@@ -604,6 +608,7 @@ public class Dropper : MonoBehaviour
         myMeshRenderer = GetComponent<MeshRenderer>();
         myMeshRenderer.enabled = false;
         myRigidBody = GetComponent<Rigidbody>();
+        myRigidBody.useGravity = false;
     }
     void Update()
     {
@@ -615,7 +620,45 @@ public class Dropper : MonoBehaviour
     }
 }
 
--
+
+- Belirli bir süre sonra visible olmasını ve yere düşmesini istiyorsak o zaman update fonksiyonu altında ve if statementı içinde
+yukarıda false yaptığımız özellikleri true'ya çekmemiz gerekiyor.
+
+using UnityEngine;
+
+public class Dropper : MonoBehaviour
+{
+    [SerializeField] float timeToWait = 2f;
+    MeshRenderer myMeshRenderer;
+    Rigidbody myRigidBody;
+    void Start()
+    {
+        myMeshRenderer = GetComponent<MeshRenderer>();
+        myMeshRenderer.enabled = false;
+        myRigidBody = GetComponent<Rigidbody>();
+        myRigidBody.useGravity = false;
+    }
+    void Update()
+    {
+
+        if (Time.time > timeToWait)
+        {
+            myMeshRenderer.enabled = true;
+            myRigidBody.useGravity = true;
+        }   
+    }
+}
+
+
+- Bir objectin üzerine tıklayınca sag tarafta tag kısmı var. Orası bize oyun içinde objectlerle ilgili ek bilgi vermesi için önemli. Şu an 
+bütün objectler untagged şeklinde duruyor.
+
+- Asıl player objectinin tag değerini "player" olarak değiştiriyoruz.
+
+- Şimdi ObjectHit.cs dosyasına gelip burada şöyle bir düzenleme yapacağız. Sadece ana object sana çarparsa renk değiştir. Bunu şundan dolayı
+istiyoruz, dropper objectine rigid body eklediğimiz için ground'a değdiği anda o da renk değiştiriyor. Bu durumu değiştirmemiz lazım.
+
+- 
 
 
 

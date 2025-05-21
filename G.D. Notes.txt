@@ -181,14 +181,14 @@ getirebilirsin. Edit altında Project settings kısmına geleceksin. Orada Edito
 en alta ineceksin. "Enter Play Mode Settings" kısmının ayarlarını değiştireceksin. Do not reload domain 
 or scene olanı seçeceksin.
 
-- Start metodu üstünde tanımladığın değişkenleri [SerializedField] float yValue = 0.01f; bu şekilde
+- Start metodu üstünde tanımladığın değişkenleri [SerializeField] float yValue = 0.01f; bu şekilde
 tanımlarsan o zaman bu değişkeni unity içinde görebiliyor ve değişkenin değerini unity içinde değiştirebiliyor
 oluyorsun. Bu script dosyasını bağladığın object'in ekranın sağ tarafındaki inspectorda bu değişkeni 
 görüyorsun. Sağ taraftaki Mover scriptinin altında "Y values" yazıyor. Bu sayede original script kodu içinde
 herhangi bir değişiklik yapmadan sadece unity arayüzünde değişkenleri test edebiliyorsun. Buna da SerializingField
 deniyor.
 
-- SerializedField olarak tanımladığın değişkenleri unity içinde Mouse'unla üzerine basılı tutup sağa sola 
+- SerializeField olarak tanımladığın değişkenleri unity içinde Mouse'unla üzerine basılı tutup sağa sola 
 oynatarak da değerlerini değiştirebilirsin.
 
 - Oyuna "Simple Movement" özelliği katabilmek için birçok yol var. Biri Input System, diğeri position
@@ -768,8 +768,74 @@ MoveTowards(actuel, cible, distanceMaximale)
 Bu kod satırını update metodu içinde yazıyoruz ve bu kod satırı sayesinde update metodu her çalıştığında scriptin bağlı
 olduğu object player'ın konumuna doğru gidecek. Soldaki ifade scriptin bağlı olduğu objectin konumunu tanımlıyor.
 
+- 
+using UnityEngine;
 
+public class FlyAtPlayer : MonoBehaviour
+{
+    Vector3 playerPosition;
+    void Start()
+    {
+        
+    }
+    void Update()
+    {
+        transform.position = Vector3.MoveTowards(transform.position, playerPosition, 1f);
+    }
+}
+Bu kodda playerın position'ı nerede? Player kim ? Bunları belirtmemiz gerekiyor yani we need to reference to the player
+Burada ne yapacağız? İki objecti Inspector içinde birbirine bağlayacağız. Bunun için de Unity'deki bütün objectlerin sahip
+olduğu Transform componenti üzerinden bağlayacağız.
 
+using UnityEngine;
+
+public class FlyAtPlayer : MonoBehaviour
+{
+
+    [SerializeField] Transform player;
+    Vector3 playerPosition;
+    void Start()
+    {
+        
+    }
+    void Update()
+    {
+        transform.position = Vector3.MoveTowards(transform.position, playerPosition, 1f);
+    }
+}
+
+Bu şekilde yazdığında, yani player'ı Transform tipinde oluşturup bunu serializefield olarak tanımladığında 
+Unity içinde Projectile objectine tıklayınca sağda açılan Inspector altındaki FlyAtPlayer.cs scriptinin orada
+"Player" yazacak ve sağ tarafında ise None(Transform) yazacak. Transform üzerine tıklayıp oradan işte ana objectimizi
+yani asıl playerı seçiyoruz.
+
+- playerPosition = player.transform.position; Bu kod bloğunu da start altında yazınca işte şimdi player'ın position'ını 
+alacağız. Bunu neden start altında yazıyoruz, çünkü oyunda player sabit ve playerın olduğu yere doğru eğik atış yapacak 
+bir sphere var. Diyelim ki eğer bir roket tasarlayacak olsaydık o zaman ana object roket olacağından ve bunun da position değerleri
+sürekli değişeceğinden dolayı işte bunun positionını update altında alacağız.
+
+- 
+using UnityEngine;
+
+public class FlyAtPlayer : MonoBehaviour
+{
+
+    [SerializeField] float speed = 1.0f;
+    [SerializeField] Transform player;
+    Vector3 playerPosition;
+    void Start()
+    {
+        playerPosition = player.transform.position;
+    }
+    void Update()
+    {
+        transform.position = Vector3.MoveTowards(transform.position, playerPosition, Time.deltaTime * speed);
+    }
+}
+Burada projectile motion'ı framerate independent hale getirdik bunu da MoveTowards fonksiyonundaki her çağrılmasında ne kadar ilerleyeceğini
+gösteren parametre yerine yazdık.
+
+- 
 
 
 

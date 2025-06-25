@@ -9,6 +9,7 @@ public class Dropper : MonoBehaviour
     {
         myMeshRenderer = GetComponent<MeshRenderer>();
         myRigidBody = GetComponent<Rigidbody>();
+        
         myRigidBody.useGravity = false;
         myMeshRenderer.enabled = false;
     }

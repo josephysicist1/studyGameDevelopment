@@ -16,7 +16,7 @@ ya da oyunun HD versiyonu için de burada seçenekler mevcut
 - İlk Projeyi oluşturduktan sonra unity açılacak ve solda sample scene altında 3 tane game object çıkacak
 Bunlar: main camera, directional light ve global volume
 
-- Bu objectlerde componentler var. Her objectde olan componentlerden biri de "Transform" component, bu component bize
+- Bu objectlerde componentler var, bunlar, ekranın sağındaki inspector altında. Her objectde olan componentlerden biri de "Transform" component, bu component bize
 positionı set etmeye, rotation varsa uygulamada işimize yarayacak.
 
 - Buradaki 3 game object'e ek olarak kendi game objectimizi nasıl yaratacağız. Oradaki boşluğa gelip sağ 
@@ -38,11 +38,11 @@ o eksende hareket ettirebilirsin
 - Transform kısmında gösterilen position kısmını "W" tuşu, Rotation kısmını "E" tuşu ve Scale kısmını da
 "R" tuşu kontrol ediyor. Bu şekilde istediğimiz pozisyonlarda object ile oynayabiliriz.
 
-- R tuşuna basıp küp olan bir objeyi çekip uzatabilirim.
+- R tuşuna basıp küp olan bir objeyi 3 eksende de çekip uzatabilir ya da kısaltabilirim.
 
 - Araba'nın parçalarını ayrı ayrı object olarak ekliyoruz. Önce arabanın ana gövdesi için küp ekledik,
 sonra arabanın tekerlekleri için de silindir ekledik. Bunlar solda Sample Scene içinde duruyorlar. Bu 
-silindiri E tuşuna basıp rotate ettirerek yer düzlemine dik hale getiriyoruz.
+silindiri E tuşuna basıp rotate ettirerek yer düzlemine paralel hale getiriyoruz.
 
 - Ekranın sol altında Assets kısmı var. Burada olan her şey bilgisayarın hard drive'ında tutuluyor.
 Bizim Project directory'deki Assets kısmı ile hierarchy arasındaki en büyük fark bu. Hierarchy içinde
@@ -60,6 +60,8 @@ arabanın ana bodysi içine koordinat düzleminde oynatarak ekleyebiliyoruz.
 - Sol tarafta objectleri birden fazla olacak şekilde seçip aynı oranda ekranda koordinat düzleminde
 hareket ettirebilir ya da aynı oranda rotate ettirebilirsin.
 
+- VSCode'a extension eklemeyi unutma. C#, Unity ve Unity Code Snippet'ı extensions kısmından ekle
+
 - Unity açıldıktan sonra sol üstte Edit kısmı altındaki Preferences'a tıkladıktan sonra External Tools
 altındaki External Script Editor'u VS Code olarak ayarla.
 
@@ -73,7 +75,7 @@ istiyoruz.), Core Mechanic(Move & Dodge obstacles, burada oyunun ana temasının
 duruyoruz),Game Loop(Get from A to B)
 
 - Avoiding Obstacle(AO) projesinde önce 3D object plane yaratarak bayağı büyük bir scale a getirdik.
-Sonra assets kısmında material ekledik, bunun "base map"'ine gelerek siyah yaptık ve ekrana doğru
+Sonra assets kısmına material ekledik, bunun "base map"'ine gelerek siyah yaptık ve ekrana doğru
 sürükleyerek plane içine bıraktık, böylece plane siyah oldu.
 
 - Plane'in parlaklığını yani güneş paneli gibi yansıyan siyah tarzından düz siyaha geçmesini
@@ -113,10 +115,9 @@ burada yazdıgığımız transform, unity içinde object'e tıklayınca sağda g
 Transform componentini temsil ediyor. Burada metodları kullanarak transform altındaki
 position, rotation ya da scale değerlerini manipüle edebiliriz.
 
-- Translate içinde nereye gitmek istediğini ya da ne kadar hızla gitmek istediğini
-belirtiyorsun.
+- Translate içinde hangi koordinat ekseninde ne kadar hızlı gitmek istediğini belirtiyorsun
 
-- Yukarıda Scene yanında bir de yanında konsol işareti bulunan Game sekmesi var. Bu sekme
+- Yukarıda "Scene" yanında bir de yanında konsol işareti bulunan "Game" sekmesi var. Bu sekme
 oyunun oynanacağı zaman kullanıcı gözünden nasıl görüleceğini gösteriyor. Onu da sürükleyerek
 Scene'in sağ tarafına bırakıp hem geliştirdiğimiz şeyi hem de oyuncu tarafından görülen kısmını
 aynı anda görüyoruz.
@@ -135,13 +136,19 @@ kodu sayesinde player objecti x ekseninde 1 birim sağa gidiyor. Eğer stop
 butonuna basarsan object başlangıç noktasına geri geliyor.
 
 - Frame is every time our game calculates what should be happening in
-our World. 
+our World.
+
+- Buradaki kullanımda "frame", ekranın bir kez güncellenmesini ifade eder. Bilgisayar oyunlarında ya da gerçek zamanlı simülasyonlarda saniyede kaç kez ekranın yenilendiğini belirtmek için kullanılır.
+FPS (Frames Per Second): Saniyede kaç frame işlendiğini gösterir. Örneğin 60 FPS, saniyede 60 kez ekranın yenilendiği anlamına gelir.
+
+- Bir animasyonun içindeki her bir poz da "frame" olarak adlandırılır. Örneğin bir yürüyüş animasyonu 30 kareden oluşuyorsa, 
+bu 30 frame’de karakterin adım adım hareketi gösterilir.
 
 - Eğer bu satırı , transform.Translate(1,0,0) , update metodu içinde yazarsak
 o zaman frame hesabı işin içine girecek. Saniyede 60 frame işliyorsa o zaman
-bir saniye içerisinde yukarıdaki kod objecti x ekseninde 60 birim ilerletecek.
+bir saniye içerisinde yukarıdaki kod, objecti x ekseninde 60 birim ilerletecek.
 
--  transform.Translate(0.01,0,0); yazarsan hata alırsın double'ı float'a çevirmen
+- transform.Translate(0.01,0,0); yazarsan hata alırsın double'ı float'a çevirmen
 gerekiyor bunun için de  transform.Translate(0.01f,0f,0f); yazman lazım.
 
 - C# da integer bir data tanımlarken int hitPoint = 20; diyerek tanımlıyoruz, ya da
@@ -189,7 +196,7 @@ herhangi bir değişiklik yapmadan sadece unity arayüzünde değişkenleri test
 deniyor.
 
 - SerializeField olarak tanımladığın değişkenleri unity içinde Mouse'unla üzerine basılı tutup sağa sola 
-oynatarak da değerlerini değiştirebilirsin.
+oynatarak da değerlerini değiştirebilirsin ancak koddaki değer değişmez. 
 
 - Oyuna "Simple Movement" özelliği katabilmek için birçok yol var. Biri Input System, diğeri position
 of object(bunu ya manuel olarak change location yapıyoruz ya da force uyguluyoruz. Force uyguladığın durumda unity'nin
@@ -204,7 +211,7 @@ hangi tuşları hangi eksenlere assign edeceğimizi burada belirtiyoruz. Burada 
 Button derken solu, Alternative Positive Button derken de sağı kastediyor. Aynı şekilde vertical kısmında da tuşlar zaten tanımlanmış
 durumda ancak değiştirmek istediğinde ayarlamaları buradan yapıyorsun.
 
-- Update metodu içinde SerializeField olarak tanımlayamıyoruz çünkü zaten burada dynamic olarak kontrol ediyoruz değişkenleri.
+- Update metodu içinde değişkenleri SerializeField olarak tanımlayamıyoruz çünkü zaten burada dynamic olarak kontrol ediyoruz değişkenleri.
 
 - 
 void Update()
@@ -292,7 +299,7 @@ Burada ulaşabileceğin bütün packageları görüyorsun. Buradan Cinemachine'�
 ve alttaki paketlere bak
 
 - Solda Hierarchy'deki boşluğa yani sample scene altındaki boşluğa sağ tıklayınca altta Cinemachine'i göreceksin, 
-yanında açılan kısımdan da cinemachinecameraya tıklayarak ekle.
+cinemachine yanında açılan kısımdan da cinemachinecameraya tıklayarak ekle.
 
 - Main camera objectine tıklayınca sağda inspector altında Cinemachine brain'i göreceksin.
 
@@ -306,11 +313,22 @@ position control ile kontrol ediyoruz. "Hard lock to target" seçeneği kameray�
 - Rotation control kısmını da "hard look at" seçeneğine çektiğimizde, bu kısım kameraya nerede olursan ol 
 playera bak ancak bunu rotation point of view'dan yap diyoruz. Bunu ayarladıktan sonra cinemachine kamerayı
 üzerindeki koordinat sistemini gösteren okları kullanarak hareket ettiremiyorum, bunu çözmenin yolu da 
-yine inspector altında cinemachine follow kısmında offset ayarının Y değerini manuel olarak değiştirmek.
+yine inspector altında cinemachine follow kısmında "follow offset" ayarının Y değerini manuel olarak değiştirmek.
 
-- "Cinemachine camera hard look at" kısmındaki offset değeri ise playerın tam üstünü hedef almanı değiştiriyor.
+- "Cinemachine camera hard look at" kısmındaki "look at offset" değeri ise playerın tam üstünü hedef almanı değiştiriyor.
 Bunu player üzerinde olan sarı kareden anlayabilirsin. Buradaki offset değerlerini değiştirerek kamerayı player'ın biraz
 üstüne ya da altına odaklamak mümkün.
+
+- "Cinemachine Follow" kısmındaki "follow offset" değerini değiştirdiğinde, objectin üzerindeki sarı kare sabit 
+kalacak şekilde ya daha yukarıdan bakıyorsun ya daha sağdan bakıyorsun gibi ayarlamaları yapıyorsun ancak "Cinemachine
+Hard Look At" altındaki "Look at offset" değeri ise cameranın odağını değiştiriyor yani object üzerindeki sarı kareyi değiştiriyor.
+
+- Burada Procedural Component altındaki Position Control ve Rotation Control kısımlarında seçtiğin seçeneklere göre aşağıda
+kamera ayarlama seçenekleri açılacak. Position Control'ı Follow olarak ayarlarsan aşağıda Cinemachine Follow açılacak ve oradan
+Follow Offset ayarlarını ayarlayabileceksin.
+
+- Rotation Control kısmında Hard Look At seçeneğini seçmen durumunda altta çıkan ayarlardan Cinemachine Hard Look At kısmında
+Look at Offset değeri kameranın bulunduğu yer sabit kalacak şekilde baktığı yerin rotational ayarının yapılmasını sağlıyor.
 
 - Bütün bu ayarlamaları yaptıktan sonra oyunu başlattığımızda kamera objectin hareketlerini biraz gecikmeli olarak
 takip ediyor, bunun ayarlamasını da "damping" kısmından yapacağız.
@@ -323,7 +341,7 @@ yaşamadan takip eder. Buradaki değerlerle eksenlerdeki kamera hareketlerinin g
 - Herhangi bir objectin inspectorı altındaki "Transform" yazısına sağ tıklayıp reset dersen tam ortaya alıyor ve
 scale boyutlarını da 1'e çekiyor. 
 
-- Hierarchy içinde empty object oluşturup bunun da Transform değerlerini sıfırladık. Sonra 4 walls objectini ve 4 obstacle
+- Hierarchy içinde "empty game object" oluşturup bunun da Transform değerlerini sıfırladık. Sonra 4 walls objectini ve 4 obstacle
 objectini bu oluşturduğumuz ve Environment adını verdiğimiz empty objectin üstüne sürükleyerek bu objectin altında 
 gruplandırdık. Bu şekilde modülerliği ve dosyalar üzerindeki kontrolünü artırıyorsun.
 
@@ -349,15 +367,19 @@ hareketlerin de durmasını istiyoruz. Bundan dolayı constraint altındaki free
 getiriyoruz.
 
 - Eğer oyundaki bir objectinin inspectorunda box collider yoksa ya da ona hangi collider türü uygunsa ve o collider türü
-yoksa o zaman ana objectin onun içinden geçebilir.
+yoksa o zaman ana object onun içinden geçebilir.
 
 - Bir objectin box collider'ı içinde edit collider'ı actif hale getirirsek object üzerinde yeşil noktalar göreceksin
 Bu noktaları çekip uzatarak object ile collide edeceği yeri mesh'inden farklı konuma getirebilirsin.
 
 - Box collider içinde isTrigger kutucuğu var. Bunu checked hale getirirsen object ile collide etmiyor, yani içinden 
 geçiyor ancak içinden geçtiğinde bir şeyler triggered hale geliyor. Kapıdan geçince karşısına canavar çıkan bir 
-oyun tasarlayacağımız zaman kapıdan geçtiğinin kontrolünün isTrigger ile yapıyoruz. Bu bizim koda bir mesaj gönderecek,
+oyun tasarlayacağımız zaman kapıdan geçtiğinin kontrolünü isTrigger ile yapıyoruz. Bu bizim koda bir mesaj gönderecek,
 biz de kapıdan geçince ne olacağını kod bloğunda yazmış olacağız ve orası çalışacak.
+
+- Bir object'in "mesh renderer" kısmındaki kutucuğu kapatırsan sen development kısmında bunun iskeletini görebilirsin ancak
+oyuncu bunu göremez. Bunu kapatıp isTrigger seçeneği işaretlenirse oyuncu rastgele geçtiği bir yer sonucunda başına geleceği
+kod dosyanda ayarlayabilirsin. Bir kapıdan geçince karşısına canavar çıkması gibi...
 
 - 
 void PrintInstructions()
@@ -405,7 +427,7 @@ public class Mover : MonoBehaviour
 Bu işlemlerin metodlar altında bu şekilde yapılması ve gerektiğinde o metodların çağrılması
 kodun daha modüler ve üzerinde daha cok kontrol sahibi olmamızı sağlıyor
 
-- Şimdi de oyun içindeki engellere ya da duvara çarpında console'da uyarı verdirten bir script 
+- Şimdi de oyun içindeki engellere ya da duvara çarpınca console'da uyarı verdirten bir script 
 yazacağız. Önce "ObjectHit" isminde bir script oluşturup bunu environmenttaki bütün obstacle ve 
 wallara bağlayacağız. Burada da oluşturacağımız script tipi monobehaviourscript.
 
@@ -441,7 +463,7 @@ Eğer objecti duvardan biraz uzaklaştırıp tekrar çarparsak o zaman yine bu m
 
 - Şimdi de ana object bir yere carptıgında o çarptığı object renk değiştirsin istiyoruz. Bunu nasıl
 yapacağız ? Öncelikli olarak bir objectin componentlerine bakacağız. Mesh renderer, box collider ve script var.
-Eğer bir objecte script bağlı ise componentler hakkında bilgi çekebiliriz. Mesela duvarın mesh renderer'ının altında
+Eğer bir objecte script bağlı ise o scripti kullanarak  componentler hakkında bilgi çekebiliriz. Mesela duvarın mesh renderer'ının altında
 material kısmı var orada da blue kısmı var. Duvara script bağlı olduğu için, burayı script üzerinden değiştirebiliriz.
 
 - 
@@ -483,7 +505,7 @@ tutarak rotate edersen o zaman açılı olarak rotate edebiliyorsun.
 
 - transform.Rotate(2,3,4); bu kod scriptini bağladığın objectin rotate etmesini sağlıyor.
 
-- Project Settings -> Player kısmından Active Input Handling'i old ya da both kısmına çekmezsen update metodu
+- Project Settings -> Player kısmından Active Input Handling'i "old ya da both" kısmına çekmezsen update metodu
 içinde tanımladığın float x = Input.GetAxis("Horizontal"); satırı hata verdiriyor. Bu kod eski sisteme ait.
 
 - Empty game object oluşturup oyundaki duvarlar ve engelleri bunun altına koyarsan, o game objecti hareket ettirdiğin
@@ -520,7 +542,7 @@ x, y ya da z eksenlerinde hareket ettirirsen gölgede bir değişiklik olmuyor a
 konumunda bir değişiklik oluyor
 
 - Burada şöyle bir şey yapmak istiyoruz, oyun başladıktan 3 saniye sonra havada asılı bıraktığımız object yere düşsün.
-Bunun için de Time.time kullanacağız ve sonrasında if yapısı ile 3 saniye geçtiğini kontrol ettikten sonra 3 saniyeliğine 
+Bunun için de Time.time kullanacağız ve sonrasında if yapısı ile 3 saniye geçtiğini kontrol ettikten sonra 3 saniye sonra 
 gravity'i tekrar enable durumuna çekeceğiz.
 
 - Burada önce Dropper.cs scriptini oluşturduk ve Dropper objectimize bağladık sonra her bir framede console a ne kadar zaman geçtiğini göstermek 
@@ -695,9 +717,9 @@ public class ObjectHit : MonoBehaviour
     }
 }
 Bu kod bloğundaki şu satırla gameObject.tag = "Hit"; 
-şunu demek istiyoruz, oyunda ana objectimin çarptığı bütün objectlerin 
-taglerini "Hit" olarak oluştur. Burada dikkat etmen gereken asıl nokta
-eğer "Hit" değerini sen Unity içinde sağ taraftaki Tag bloğuna eklemezsen
+şunu demek istiyoruz, eğer ben "Player" tag'ine sahip bir object tarafından 
+çarpılmışsam bu player tarafından çarptığım gameobject'ine "Hit" tagini ata. 
+Burada dikkat etmen gereken asıl nokta eğer "Hit" değerini sen Unity içinde sağ taraftaki Tag bloğuna eklemezsen
 o zaman kodda hata alıyorsun. "Hit" değerine sağda bulunan tagler arasına ekle
 ondan sonra kodda düzenlemelerini yap
 
@@ -757,6 +779,8 @@ public class Spinner : MonoBehaviour
 We can store Vector3 as a variable.  C’est une variable (par exemple, la position) qui contient trois valeurs (x, y, z)
 Move Towards() metodunu da aynı zamanda kullanacağız. We can use MoveTowards() to make an object move towards a specific point 
 in the World. 
+
+- Vector3 is a position in the World, it contains values for x,y,z
 
 - MoveTowards() 3 parametre ister,
 	1- o anki pozisyonu(current)
@@ -835,13 +859,115 @@ public class FlyAtPlayer : MonoBehaviour
 Burada projectile motion'ı framerate independent hale getirdik bunu da MoveTowards fonksiyonundaki her çağrılmasında ne kadar ilerleyeceğini
 gösteren parametre yerine yazdık.
 
+- Inspector altındaki BoxCollider asla kullanıcı tarafından görülemez, açık olsa da olmasa da görülemez ancak bir objectin visible
+ya da invisible olmasını istiyorsak o zaman Mesh Renderer ayarı ile oynamalıyız.
+
 - 
 
+using UnityEngine;
 
+public class ObjectHit : MonoBehaviour
+{
 
+    void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.tag == "Player")
+        {
+            GetComponent<MeshRenderer>().material.color = Color.black;
+            gameObject.tag = "Hit";
 
+        }        
+    }
+}
+Buradaki  if (collision.gameObject.tag == "Player") kod satırında denmek istenen şey şu:
+other things that bumped into us and I want to access the game object itself, bunun da tag'inin Player olması durumunda if
+içindeki işlemleri yap. İçerideki collision.gameObject.tag ile gameObject.tag arasındaki fark, ilkinde bu scriptin bağlı
+olduğu objecte çarpan objecti refer ederken gameObject.tag kısmında ise bu scriptin bağlı olduğu objecti refer ediyor.
 
+- 3D object altında plane oluşturduğunda, bunun transform altındaki scale kısmına ne kadar y değeri girersen gir, herhangi
+bir boyut değişimi göremeyeceksin. Plane 2 boyutlu bir object, o yüzden sadece x ve z değerleri için değişimi görebilirsin.
 
+-  transform.position = Vector3.MoveTowards(transform.position, playerPosition, 1f); Update içinde frame her cagrıldıgında 
+objectin transform içindeki position değerleri MoveTowards metodundan dolayı güncellenecek. Yani cisim hareket edecek, bu
+hareketten sonra oluşan yeni x,y,z positionları transform.position'a atılacak yani cismin konumu değişecek.
+
+- 
+using UnityEngine;
+
+public class FlyAtPlayer : MonoBehaviour
+{
+
+    [SerializeField] float speed = 1.0f;
+    [SerializeField] Transform player;
+    Vector3 playerPosition;
+    void Start()
+    {
+        playerPosition = player.transform.position;
+    }
+    void Update()
+    {
+        transform.position = Vector3.MoveTowards(transform.position, playerPosition, Time.deltaTime * speed);
+    }
+}
+Buradaki bu kod satırından dolayı [SerializeField] Transform player; Unity arayüzünde sağ tarafta bir player ataması yapmamız gerekiyor.
+Bu player'ı projectile yapacak objectimiz olarak tanımlıyoruz, çünkü bu objectin gideceği yer bizim ana playerımızın olduğu konum.
+
+- Şimdi bu aşamada da objectleri yok etme konusunu ele alacağız.
+
+- 
+    void DestroyWhenReached()
+    {
+        Destroy(gameObject);
+    }
+Burada yok etme metodunu tanımlarken hangi objecti yok edeceğimizi belirtmemiz gerekiyordu. Bu scriptin yani FlyAtPlayer.cs scriptinin
+bağlı olduğu objectleri refer etmek için ya da herhangi bir scriptin bağlı olduğu bir objecti refer etmek için "gameObject" kavramını kullanıyoruz.
+
+- 
+using UnityEngine;
+
+public class FlyAtPlayer : MonoBehaviour
+{
+
+    [SerializeField] float speed = 1.0f;
+    [SerializeField] Transform player;
+    Vector3 playerPosition;
+    void Start()
+    {
+        playerPosition = player.transform.position;
+    }
+    void Update()
+    {
+        MoveToPlayer();
+        DestroyWhenReached();
+
+    }
+    void MoveToPlayer()
+    {
+        transform.position = Vector3.MoveTowards(transform.position, playerPosition, Time.deltaTime * speed);
+
+    }
+    void DestroyWhenReached()
+    {
+        if (transform.position == playerPosition) {
+            Destroy(gameObject);
+
+        }
+    }
+}
+
+- Şimdi de trigger olayını halledeceğiz. Ana objectin yakınında cube bir object koyup MeshRenderer'ını kapatacağınız, 
+çünkü objectin varlığını değil o objectin kapladığı volume'a gelecek objectlerin trigger edeceği olayı halledeceğiz. Bunu yaparken 
+de objectin sağda inspector altındaki BoxCollider altındaki isTrigger kısmını enabled yapmamız gerekiyor.
+
+- Burada da aynen Collision'da olduğu gibi  
+	void OnTriggerEnter(Collider other)
+    {
+        
+    }
+metodunu kullacagız. Collision'da bu void onCollisionEnter(Collision colision){} şeklindeydi.
+
+- Inspector'ın hemen altındaki yer yani tag'in üstündeki yeri unchecked hale getirirsek o object artık görünmüyor, ancak bu durum 
+mesh rendererı unchecked etmekten farklı. Orada objectin iskeletini hala görüyorduk ancak burada artık tamamen görmüyoruz.
 
 
 

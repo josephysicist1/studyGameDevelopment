@@ -922,6 +922,8 @@ Bu player'ı projectile yapacak objectimiz olarak tanımlıyoruz, çünkü bu ob
 Burada yok etme metodunu tanımlarken hangi objecti yok edeceğimizi belirtmemiz gerekiyordu. Bu scriptin yani FlyAtPlayer.cs scriptinin
 bağlı olduğu objectleri refer etmek için ya da herhangi bir scriptin bağlı olduğu bir objecti refer etmek için "gameObject" kavramını kullanıyoruz.
 
+- Inspector altındaki meshrenderer'e sağ tıklayıp remove diyerek de eklediğimiz objectin iskeletinin kalmasını sağlayabiliyoruz.
+
 - 
 using UnityEngine;
 
@@ -970,6 +972,90 @@ metodunu kullacagız. Collision'da bu void onCollisionEnter(Collision colision){
 mesh rendererı unchecked etmekten farklı. Orada objectin iskeletini hala görüyorduk ancak burada artık tamamen görmüyoruz.
 
 
+- tag'in üstündeki yeri kapatabilmemiz için SerializeField olarak GameObject tipinde bir değişken tanımlamamız gerekiyor.
+
+-
+using UnityEngine;
+
+public class TriggerProjectile : MonoBehaviour
+{
+    [SerializeField] GameObject projectile;
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.tag == "Player") {
+            projectile.SetActive(true);
+        }
+    }
+}
+Öncesinde 5 tane küre şeklinde projectile yapan objectlerin inspectorun hemen altında tag'in hemen üstündeki
+yerden unchecked yaparak yok ettik, yukarıdaki kod bloğu da eğer ana objectimiz trigger volume'den geçerse o projectile 
+yapan 5 objecten bir tanesi, ki bunu SerializeField olarak tanımladıktan sonra unity arayüzünde Projectile isimli object'e 
+target ettirdik, yani bu object bir anda görünür olacak. Ana object o trigger volumedan geçtiği anda Projectile isimli object de 
+görünür olacak, bunu da projectile.SetActive(true); satırıyla yapıyoruz.
+
+- 
+using UnityEngine;
+
+public class TriggerProjectile : MonoBehaviour
+{
+    [SerializeField] GameObject projectile;
+    [SerializeField] GameObject projectile2;
+    [SerializeField] GameObject projectile3;
+
+    [SerializeField] GameObject projectile4;
+    [SerializeField] GameObject projectile5;
+
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.tag == "Player")
+        {
+            projectile.SetActive(true);
+            projectile2.SetActive(true);
+            projectile3.SetActive(true);
+            projectile4.SetActive(true);
+            projectile5.SetActive(true);
+        }
+    }
+}
+O 5 objecti de SerializeField olarak tanımlayıp, inspector içinde atamalarını yapıp hepsini ana object trigger volume'den geçince
+ortaya çıkacak şekilde ayarlayacak kod bloğu yukarıda.
+
+- Prefab : reusable asset that represent a GameObject. Bunu harddrive'a prefab olarak kaydediyoruz.
+Instance : specific copy of a prefab in our scene
+
+- Burada 5 tane objecti teker teker duplicate ederek oluşturduk ancak ben kürenin yarıçapını değiştirerek
+oluşturmak istiyorum, bu durumda her duplicate ettiğimde ayrı ayrı ayarlamalar yapmak zorunda kalacağım. Instance ve
+prefab olayı bu ayarlamaları teker teker yapmamak için var. Burada sadece bir tane projectile objecti bırakarak diğer 4ünü
+sildik.
+
+- Sonrasında asset içine gelerek Prefab adını verdiğimiz bir folder oluşturduk. Sonrasında solda Hierarchy içinde, prefab yapmak istediğimiz gameobjectin üzerine 
+gelip o folderın içine sürükleyerek bırakıyoruz. Hierarchy içinde o gameobject, bu durumda projectile oluyor, mavi bir simge solunda bulunacak şekilde duruyor. 
+Asset içindeki Prefab folderındaki Projectile'a sağ tıklayıp "Show in Explorer" dediğimizde artık uzantısının prefab olduğunu görüyoruz. Yani bu object artık
+prefab oldu ve hard drive'da duruyor. That's a great way to share particular things from game to game. If you go to the asset store and purchase an asset, then you will be 
+able to download it as a package ve bu package file içerisinde birçok prefabs bulunuyor.
+
+- Objecti prefab durumuna getirdikten sonra eğer hierarchy içindeyken yanlışlıkla bu objecti silersem, hala prefab içinde durduğundan dolayı, buradan tutup sürükleyerek objecti
+tekrar oluşturabilirim, buna instance diyoruz ve tekrar sürükleyip bırakırsam yine aynı şekilde bu sefer ikincisi oluşur, projectile (2) oluşur.
+
+- Sol tarafta 4 tane instance'ın scale değerlerini değiştirmek istiyorum, o zaman tek tek yapmak yerine prefab folderı içindekine çift tıklayınca oyun ekranında
+bizi sadece o objectin olduğu yeni bir yere yönlendiriyor ve orada ayarlama yaptıktan sonra genel oyun yerine geldiğinde bütün instanceların aynı değeri aldığını görüyorsun.
+
+- Bir Instanceın Inspectorı altında Prefab kısmında Overwrite seçeneği var. Eğer bir instance'ın scale değerini değiştirirsen Overwrite altında Revert all ve apply to all kısmı var.
+Revert all, başlangıç değerlerine getirirken, apply to all hepsine artık bu değeri uygulayarak prefab'in de değerini değiştiriyor.
+
+- Burada şöyle bir istisna var. Bu 5 sphere objecte colourları sınıflandırdığımız materiallerdan bir colourı birine atadık, sonra atadığımız objectin prefabi altına gelip
+overwrite kısmından apply to all diyince bütün hepsi o colora sahip olacak ancak diyelim ki önce birine bir color atadım sonra apply to all demeden sonra diğerine color atadım. 
+Bunlardan birinin overwrite kısmından apply to all dersem o zaman diğer ikinci olan hariç hepsi o renge bürünecek. Apply to all kısmı diğerine etki etmeyecek.
+
+- Prefab yapacağın objectleri seçerken dikkat et. Ana player kesinlikle prefab olmalı çünkü scene'den scene'e geçerken bunun kalmasını istiyoruz. Her şeyi prefab içine de taşıyabilirsin.
+
+- Eğer instance'ı duplicate edersen o oluşan aynı object de aynı prefab'den oluşmuş gibi olacak, sürükleyip bırakmanla hiçbir farkı olmayacak.
+
+- Prefablerin hepsini etkileyecek bir değişiklik yapacaksan eğer 2 yolu var: Prefab folder'ı içindekine tıklayarak sağda Inspector altında yapabilirsin ya da instancelardan birini 
+değiştirip apply to all diyebilirsin.
+
+- 
 
 
 

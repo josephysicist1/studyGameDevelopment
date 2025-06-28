@@ -1055,12 +1055,131 @@ Bunlardan birinin overwrite kısmından apply to all dersem o zaman diğer ikinc
 - Prefablerin hepsini etkileyecek bir değişiklik yapacaksan eğer 2 yolu var: Prefab folder'ı içindekine tıklayarak sağda Inspector altında yapabilirsin ya da instancelardan birini 
 değiştirip apply to all diyebilirsin.
 
+- Burada çalıştırdıktan sonra hata alıyoruz çünkü destroy edilen bir objecte sonradan erişmeye çalışıyorsun. Bu neden oluyor? Projectile yapan bir objectler senin bulunduğun konuma doğru 
+geliyor ancak sen hala trigger volume'den geçmedin. Objectler sana çarpıp da yok olduktan sonra trigger volume'den geçmek istersen exception atıyor, çünkü trigger volume'den geçmesi
+durumunda o objectlere erişip bir şeyler yapacak kodu yazmıştık.
+
+- Unity'nin event functionlar için order of execution'ı var. Unity documentation'da execution order kısmında "Awake" diye bir şey var. Burası Start'tan da önce çalıştırılıyor.
+Bundan dolayı öncesinde calıstırılması gereken kodlar varsa bunları Awake içine atmamız lazım.
+
 - 
+using UnityEngine;
 
+public class FlyAtPlayer : MonoBehaviour
+{
 
+    [SerializeField] float speed = 1.0f;
+    [SerializeField] Transform player;
+    Vector3 playerPosition;
+    void Awake()
+    {
+        gameObject.SetActive(false);
+    }
+    void Start()
+    {
+        playerPosition = player.transform.position;
+    }
+    void Update()
+    {
+        MoveToPlayer();
+        DestroyWhenReached();
 
+    }
+    void MoveToPlayer()
+    {
+        transform.position = Vector3.MoveTowards(transform.position, playerPosition, Time.deltaTime * speed);
 
+    }
+    void DestroyWhenReached()
+    {
+        if (transform.position == playerPosition) {
+            Destroy(gameObject);
 
+        }
+    }
+}
+Bu dosya FlyAtPlayer.cs dosyası. Bunlar projectile yapan objectlere bağlı olan dosya. Bu şekilde awake fonksiyonu eklememizin ana nedenlerinden bir tanesi,
+ana object trigger volume'den geçmeden önce projectilelar herhangi bir görünürlük elde etmiyor, ya da harekete geçmiyordu ancak trigger volume'den geçtikten sonra harekete
+geçiyordu ancak bu harekette şöyle bir sorun var, projectilelar ana objectin o anlık konumuna gelmiyorlar, başlangıç konumuna gidiyorlar ancak biz trigger volume'den geçtiği
+anda oluşsunlar ve o an ana object neredeyse oraya gelsinler istiyoruz. Buradaki sorun order of execution'dan kaynaklanıyor. Awake fonksiyonu bu sorunu düzeltme amacıyla
+kullanıldı.
+
+- Hierarchy içinde bir game objectin solundaki göz işareti kolonuna tıklarsan o object scene içinde görünmüyor ama bu yok olduğu anlamına gelmiyor, hala var sadece tasarım yaparken
+ya da bir şeyleri ayarlarken dikkatin dağılmasın diye ayarlamak için.
+
+- Oyun içinde bir objecte özellikle ground objectine yanlışlıkla tıklama cok oluyor, bunu kapatmak için hierarchy içinde el işareti olan kolonda tıklamak istemediğin objectin hizasına tıklaman
+lazım.
+
+- Bütün walların position'daki y değerlerini aynı yaptık,sebebi de aynı yüksekliğe sahip olmalarını istememiz.
+
+- Bütün objectleri individual olarak seçip rotate ettirirsen her object bulunduğu noktada rotate edecek ancak empty game object altında gruplandırıp o grubu rotate ettirirsen oyun alanı bir bütün olarak
+dönecek, bundan dolayı gruplandırmalar önemli.
+
+- TriggerProjectile.cs
+
+using UnityEngine;
+
+public class TriggerProjectile : MonoBehaviour
+{
+    [SerializeField] GameObject projectile1;
+    [SerializeField] GameObject projectile2;
+    [SerializeField] GameObject projectile3;
+    [SerializeField] GameObject projectile4;
+    [SerializeField] GameObject projectile5;
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.tag == "Player")
+        {
+
+            projectile1.SetActive(true);
+            projectile2.SetActive(true);
+            projectile3.SetActive(true);
+            projectile4.SetActive(true);
+            projectile5.SetActive(true);
+            Destroy(gameObject);
+        }
+    }
+}
+Burada Destroy(gameObject); yazdığımızda bu scriptin bağlı olduğu objecti yok ediyor. Bir scriptin bağlı olduğu object ile ayarlamalar yapmak için gameObject kullanıyoruz.
+Burada bunu yapmamızın nedeni, trigger volume olduğu yerde kalıyor ancak bundan ikinci defa geçince tekrar projectileları aktif etmeye çalışıyor ancak o projectilelar çoktan yok oldu
+bunda da kod exception atıyor bundan dolayı trigger volume'u yok etmek en iyisi.
+
+- Projectile'ların da player'a carptıgında renk değiştirmesini istiyoruz, bu durumda yapacağın şey şu, prefab'lardan projectile'a geleceksin, add component kısmından da ObjectHit.cs'i ekleyeceksin,
+böylece bütün projectilelar tek seferde scripte bağlanmış olacak.
+
+- Bir objectin Transform kısmını reset yapabileceğin gibi, bütün değerleri kopyalayıp başka bir objecte de yapıştırabilirsin.
+
+- Hierarchy içinde bir tane empty game object oluşturup, "projectile hazard" bunun altına projectilelar ve trigger volume'u ekledik. Prefab olayının güzel tarafı bu altında 
+gruplandırma yaptığımız empty game objecte de prefab olayını yapabiliyoruz. Trigger volume de bir prefabdi, burada nested prefab de yapabilirsin.
+
+- Unity'de küçük bir sorun var nedenini bulamadım ama çözüm var. Bir yerden sonra Mouse'la game scene içinde gezinme hızın cok yavaşlıyor. Mouse'un döndürdüğün o yuvarlak kısmı ile
+yaklaşıp uzaklaşma hızın bir noktada cok cok yavaşlıyor, sağ click ile dönme hızın da cok yavaşlıyor, bu durumda bir objecte tıklayıp "F" tuşuna basınca o objecte hızlıca odaklıyor kamerayı ve
+Mouse ayarları da normal hızına dönüyor. Çok saçma bir sorun ve çözüm.
+
+- NEW PROJECT (ROCKET)
+
+- Bu projedeki game design felsefesi
+	Player Experience : Precision, skillfull
+	Core Mechanic : fly carefully and avoid environmental hazard
+	Core Game Loop : Get from A to B
+
+- Aynı zamanda ayını tasarlarken game flow and screens kısımlarını da flowchart şeklinde tasarlaman lazım. Level 3'te yanarsan Level1'a dönmeyeceksin, Level3'te tekrar edeceksin gibi...
+
+- Bu projede başka bir projeden import edeceğimiz game objectleri kullanacağız bunun için de .unitypackage uzantısına sahip dökümanı projemizde Assets folderının içinde istediğimiz yere
+sürükleyip bırakabiliriz. Sonrasında bu package'de bütün objectler karşımıza çıkacak import butonuna bastıktan sonra Assets folderımızda yeni bir Directory oluşacak ve burada import ettiğimiz package'deki
+dataları göreceğiz.
+
+- Models dosyası içinde Fighter, Rover gibi oyundaki elemanlar var. Eğer burada bir elemanı anlamsız bir renkte ve şekilde görürsen, bu case'de pembe, o zaman inspector altındaki Material kısmına gel ve 
+colour palette kısmından düzenlemeler yap, içerisinde pembe renk olan bütün objectler için bu düzenlemeleri yap.
+
+-  Burada dikkat etmen gereken nokta, bu oyunu sen 3D eksende yapıyorsun ancak 2D'de ilerleyecek o yüzden +x, -x, +y ve -y eksenlerini ayarlayacak şekilde scene'de kamera görüşünü ayarla.
+
+- Eğer import ettiğin bir modeli unity içinde kullanırken boyutlarını merak ediyorsan, rastgele bir cube oluştur, bunun scale boyutları 1,1,1'dir ve bu küpü kıyaslamak istediğin objectin 
+yanına getirerek boyut kıyaslaması yap, ya da scene yüzeyi karelere bölünmüş durumda, bu kareler de unity içinde 1 birim uzunluğa denk geliyor, küp oluşturmadan buna bakarak da kıyaslama 
+yapabilirsin.
+
+- 
 
 
 

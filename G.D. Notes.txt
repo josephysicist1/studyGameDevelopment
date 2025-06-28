@@ -1179,8 +1179,48 @@ colour palette kısmından düzenlemeler yap, içerisinde pembe renk olan bütü
 yanına getirerek boyut kıyaslaması yap, ya da scene yüzeyi karelere bölünmüş durumda, bu kareler de unity içinde 1 birim uzunluğa denk geliyor, küp oluşturmadan buna bakarak da kıyaslama 
 yapabilirsin.
 
-- 
+- Burada önce 3 boyutlu bir küp oluşturarak bunu ground yaptık, sonrasında ise modellerden bir tane launch pad bir tane de landing pad alarak küp üstünde yerleştirdik ve rocketi de launch pad
+üzerine koyduk. Şimdi burada bu Scene'i kaydetmek istiyoruz,ayrı kaydetmek istiyoruz çünkü bundan oynamalar yapacağız. Sol üstte File 
+kısmına gelip "Save as" diyerek bu scene'i "Sandbox" adını vererek kaydediyoruz ve SampleScene'i siliyoruz.
 
+- Sonrasında burada Assets altında Scripts folderını oluşturup içerisine de "Movement" adında monobehavior scripti yerleştirdik.
+
+- 
+using UnityEngine;
+
+public class Movement : MonoBehaviour
+{
+    void Start()
+    {
+        
+    }
+    void Update()
+    {
+        
+    }
+}
+Buradaki UnityEngine = namespace
+Class adı da Movement.
+
+- Namespaces are "containers" for Classes and Classes are containers for Variables and Methods.
+
+- Burada highest level => Namespace. Bunları küme olarak düşünürsen en dışarıda evrensel küme olarak Namespace, sonra altında class, class kümesi içinde 
+metodlar ve metodlar içinde de statementlar.
+
+- Encapsulation is kind of a putting a capsule around it so it only knows abput itself. The goal is to limit what the code can see / can change / be changed by 
+Burada amaç eger bizim elimizde, diğer şeyleri biz farkında olmadan değiştirebilecek bir şey varsa, bunun sonunda istenmeyen durumlar ortaya çıkabilir, bug, ya da 
+istenilen dışında movementlar gibi...
+
+- Eğer encapsulation mantığında ilerleyeceksek, bizim Movement.cs kodunda, sadece burası roketin hızını değiştirebilir.
+
+- We typically aim for a class to do one main thing and not multiple things…
+
+- Mesela diyelim ki Movement class sadece hızı ayarlıyor ancak bir yerde de booster classı var ve bu da hızın artırılmasını sağlıyor. Booster classı 
+hızı artırmak istediğinde movement classı ile bağlantı kurması gerekiyor, çünkü biz hız konusundaki talimatları sadece movement classından veriyoruz.
+
+- Unity'de unity ekibi tarafından tanımlanmış birçok class var, bunlara erişmek için relevant namespace'i bilmemiz gerekiyor.
+
+- 
 
 
 

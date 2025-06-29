@@ -1673,16 +1673,232 @@ kısmından da Follow Offset ayarlarını ayarlayarak kameranın konumunu netle�
 - Şimdi de Rotation Control kısmını "Spline Dolly Look At Targets" olarak değiştiriyoruz.
 
 - Burada dikkat edersen, oyun ve kamera titriyor, bunun sebebi de daha öncesinde belirttiğimiz gibi Update metodu. Bu sorunu çözmek için
-Main Camera objectine geliyoruz, Altta "Cinemachine Brain" altında "Update Method" var. Burası "Smart Update" olarak ayarlanmış ancak bunu "FixedUpdate"'e çekiyoruz.
+Main Camera objectine geliyoruz, Altta "Cinemachine Brain" altında "Update Method" var. Burası "Smart Update" olarak ayarlanmış ancak bunu "FixedUpdate"'e çekiyoruz aynı şekilde
+onun hemen altındaki "Blend Update" kısmını da FixedUpdate'e çekiyoruz.
+
+- Sonrasında Cinemachine Camera'ya gelip Position Control kısmını "Position Composer" olarak ayarlıyoruz. Position Composer olarak ayarladıktan sonra ekranda origini rocket olan
+bir x-y ekseni çıkıyor. Burası sürekli roketi takip edecek ancak biraz gecikmeli ile takip ediyor.
+
+- Position Control'u Position Composer olarak ayarladıktan sonra aşağıda açılan Cinemachine Position Composer'ın ayarlarından kamera mesafesi, screen position gibi değerleri ayarlıyoruz.
+Screen position bize kamera offset değerlerini ve roketin kamera ekranında nerede konumlanacağını gösteriyor.
+
+- Cinemachine Position Composer ayarlarında Dead Zone kısmı var. That's how far you can slide before the camera moves. Bunun da altında "Hard Limits" var. Hard Limits means that
+the camera will never, ever, ever let you go further than that off the screen. 
+
+- Dead Zone, çerçevenin (kamera ekranının) merkezinde tanımlanan bir dikdörtgen alandır. Hedef (örneğin karakter) bu alan içinde kaldığı sürece kamera hareket etmez. Hedef bu bölgenin dışına çıkarsa, kamera onu tekrar merkeze getirmek için hareket eder.
+
+- Hard Limits, hedefin (örneğin karakterin) kameranın çerçevesinde gidebileceği en uzak sınırları belirler. Bu sınırlar aşıldığında, kamera zorla hedefi tekrar Dead Zone içine çekmeye çalışır.
+
+- Dead Zone küçük, Hard Limit geniş: Karakter biraz uzaklaşabilir ama ekran dışına çıkmadan önce kamera devreye girer.
+
+Hard Limit = Dead Zone: Kamera karakter Dead Zone'dan çıkar çıkmaz ani tepki verir.
+
+Hard Limit yok (kapalı): Kamera sınırsızca karakterin hareketine izin verir, sadece Dead Zone’a göre çalışır.
+
+- Burada yapacağımız bazı işlemler var :
+	1- Plonk in an obstacle
+	2- Freeze constraints for our rocket
+	3- fix our obstacle-hitting bug due to momentum
+	4- set our drag value
+	5- fiddle with World gravity
+
+- Önce Player Rocket'in Inspector'ı altında z eksenindeki position'ı constraint kısmında checked durumuna alman lazım çünkü bunun sadece x ve y ekseninde
+translate etmesini istiyoruz aynı şekilde rotation eksenlerindeki constraintler için de E tuşuna basarak rotate etmesini istediğin eksene bak ve diğer eksenleri
+dondur. Burada sadece Z ekseni açık kalacak xy eksenlerini dondur.
+
+- Şimdi de import ettiğimiz package içinden bazı modelleri oyun içine ekleyeceğiz. Silindir şeklinde bir uzay kapsülünü oyuna ekledik ancak roketimiz bunun içinden geçiyor, 
+bunu engellemek için bu object'e box collider eklememiz gerekiyor ancak bu box collider capsule collider olmalı, çünkü silindir bir objecte küp şeklinde collider eklemek mantıklı 
+değil.
+
+- Bu capsule collider'ın center, height ve Radius değerleriyle oynayarak bu objectin çarpışma sınırlarını mantıklı hale getiriyoruz.
 
 - 
+ private void ApplyRotation(float rotationThisFrame)
+    {
+        rb.freezeRotation = true;
+        transform.Rotate(Vector3.forward * rotationThisFrame * Time.fixedDeltaTime);
+    }
+Buraya rb.freezeRotation = true; bu kodu yazmamızın sebebi, fizik sistemine sen rotate etme, rotation sadece biz sağlayacağız demek. Sonrasında da
+tekrar rotation'ı sen devralabilirsin dememiz lazım
 
+private void ApplyRotation(float rotationThisFrame)
+    {
+        rb.freezeRotation = true;
+        transform.Rotate(Vector3.forward * rotationThisFrame * Time.fixedDeltaTime);
+        rb.freezeRotation = false;
+    }
+Bunu da bu şekilde yapacağız.
 
+- Burada scene'e eklediğimiz kapsülün diğer adıyla tankın özelliklerini import ettiğimiz dosyasından farklı hale getirdik. Bunu ileride de kullanmak için
+kendi prefab dosyamıza ekliyoruz.
 
+- "Drag" kavramı unity içinde tekrardan adlandırıldı. Bunun yeni adı "Damping". Burada bahsettiğimiz şey RigidBody altındaki Linear Damping.
+Drag is basically imagine the wind resistance as you fly through the atmosphere. So dampening factors that affect how this body resists linear 
+motion. Drag değerini yani linear damping değerini cok fazla yaparsan roketi yerinden kaldıramazsın çünkü cok fazla dirençle karşılaşırsın.
 
+- Gravity değerini oyunda değiştirmek istiyorsan, o zaman Edit -> Project Settings -> Physics altındaki Settings kısmından Gravity'nin değerlerini değiştireceksin.
 
+- Artık Unity'nin audio kısmıyla uğraşma zamanı. Burada bazı ses efektlerini ekleyeceğiz. Bunun için 3 ana şeye ihtiyacımız var : 
+	1- audio file'a ihtiyacımız var, burada kullanacağımız audio filelar .mp3, .ogg ya da .wav uzantılı olabilir. 
+	2- bu audio dosyasını unity içinde oynatmak, that's smt that needs to sit as a component on a game object, an audio source
+	3- audio listener, that's the thing that we'll be able to hear the audio.
 
+- Eğer Main Camera'ya tıklarsan Inspector altında Audio Listener componentini göreceksin. Burası olmadan bizim sesi duymamız mümkün değil. Aynı şekilde bizim "3D Spatial Sound"
+kurmamız gerekiyor ki, sesin kaynağı uzakta olursa ve yakında olursa duyma şekillerini ona göre ayarlasın.
 
+- Şimdi ses çıkaracak objectlere "Audio Source" componentini eklememiz gerekiyor. Bundan dolayı Player Rocket objectimize gelip "Add Component" diyerek buradan Audio Source'u ekleyeceğiz.
+Ekledikten sonra Inspector altındaki Audio Source componentinden bu sesin ayarlarını yapacağız.
+
+- Birden fazla audio eklenebilir ve triggered durumlara göre değişebilir ancak burada 1 tanesiyle başlayacağız.
+
+- Sesler konusunda da freesound.org sitesinden istediğin soundları arayabilirsin.
+
+- Assets folderı altında "Audio" adında bir folder oluşturuyoruz ve ses dosyalarımızı buraya atıyoruz.
+
+- Eğer kendi sesini yapmak istiyorsan "Audacity" isimli yazılımı indirip yapabilirsin. Bu programda kaydettiğin sesin neredeyse bütün özellikleriyle oynayabilirsin. Hızlandırabilirsin,
+yavaşlatabilirsin, high pitch yapabilirsin...
+
+- Player Rocket'e gelip audio resource kısmını main engine thrust olarak ayarlıyoruz. Altındaki ayarlardan "Play on Awake" kısmı checked durumda ise bu şu demek, oyunda Start butonuna bastığım 
+anda bu ses dosyası çalacak. Ancak ses dosyası sona geldiğinde çalmayı bırakacak, bunun sürekli çalmasını istiyorsan Loop seçeneğinin de checked durumda olduğundan emin olman lazım.
+
+- Burada yapacağımız şey, bu sesin sadece thrusterlar acık olduğunda çalması yani sadece space tuşuna basınca bu sesin çıkmasını istiyoruz. Bunun için yapmamız gereken, audio source componentine 
+erişip, sonrasında AudioSource.Play() metodunu ve AudioSource.Stop() metodunu if yapısı içinde kullanman lazım. Sonrasında da Play on Awake kısmını unchecked haline getiriyoruz.
+
+- 
+using UnityEngine;
+using UnityEngine.InputSystem;
+public class Movement : MonoBehaviour
+{
+    [SerializeField] InputAction thrust;
+    [SerializeField] InputAction rotation;
+    [SerializeField] int thrustStrength = 1000;
+    [SerializeField] float rotationStrength = 100f;
+    AudioSource audioSource;
+    Rigidbody rb;
+    void Start()
+    {
+        audioSource = GetComponent<AudioSource>();
+        rb = GetComponent<Rigidbody>();
+    }
+    void OnEnable()
+    {
+        thrust.Enable();
+        rotation.Enable();
+    }
+    private void FixedUpdate()
+    {
+        ProcessThrust();
+        ProcessRotation();
+    }
+    private void ProcessThrust()
+    {
+        if (thrust.IsPressed())
+        {
+            rb.AddRelativeForce(Vector3.up * thrustStrength * Time.fixedDeltaTime);
+            audioSource.Play();
+        }
+        else
+        {
+            audioSource.Stop();
+        }
+    }
+    private void ProcessRotation()
+    {
+        float rotationInput = rotation.ReadValue<float>();
+        if (rotationInput > 0)
+        {
+            // transform.Rotate(Vector3.back * rotationStrength * Time.fixedDeltaTime); 
+            // transform.Rotate(-Vector3.forward);
+            ApplyRotation(-rotationStrength);     
+        }
+        else if (rotationInput < 0)
+        {
+            ApplyRotation(rotationStrength);
+        }
+    }
+    private void ApplyRotation(float rotationThisFrame)
+    {
+        rb.freezeRotation = true;
+        transform.Rotate(Vector3.forward * rotationThisFrame * Time.fixedDeltaTime);
+        rb.freezeRotation = false;
+    }
+}
+    
+Burada karşılaştığım sorunlardan biri space'e basınca sound effect üstü üstüne biniyor ve bu onlarca aynı sound üstü üstüne biniyor istenilen ses çıkmıyor. Bunun için
+kod satırına, eğer bu ses dosyasını çalıştırıyorsan bir daha calıstırma, yani sadece bir kere calıssın bitince bir daha çalışsın diyoruz. Çünkü Space tuşuna her bastığımızda
+bu ses dosyası bastan bir daha calıstıgı için parazit sesi çıkarıyor. Bunun için de
+
+if(!audioSouce.isPlaying)
+{
+	audioSouce.Play();
+}
+kodunu ekleyeceğiz. Bunun anlamı eğer space'e bastığımda audiosource çalmıyorsa çalsın yoksa çalmasın.
+
+- Düzeltilmiş haliyle bu : 
+using UnityEngine;
+using UnityEngine.InputSystem;
+public class Movement : MonoBehaviour
+{
+    [SerializeField] InputAction thrust;
+    [SerializeField] InputAction rotation;
+    [SerializeField] int thrustStrength = 1000;
+    [SerializeField] float rotationStrength = 100f;
+    AudioSource audioSource;
+    Rigidbody rb;
+    void Start()
+    {
+        audioSource = GetComponent<AudioSource>();
+        rb = GetComponent<Rigidbody>();
+    }
+    void OnEnable()
+    {
+        thrust.Enable();
+        rotation.Enable();
+    }
+    private void FixedUpdate()
+    {
+        ProcessThrust();
+        ProcessRotation();
+    }
+    private void ProcessThrust()
+    {
+        if (thrust.IsPressed())
+        {
+            rb.AddRelativeForce(Vector3.up * thrustStrength * Time.fixedDeltaTime);
+            if (!audioSource.isPlaying)
+            {   
+                audioSource.Play();
+            }
+        }
+        else
+        {
+            audioSource.Stop();
+        }
+    }
+    private void ProcessRotation()
+    {
+        float rotationInput = rotation.ReadValue<float>();
+        if (rotationInput > 0)
+        {
+            // transform.Rotate(Vector3.back * rotationStrength * Time.fixedDeltaTime); 
+            // transform.Rotate(-Vector3.forward);
+            ApplyRotation(-rotationStrength);     
+        }
+        else if (rotationInput < 0)
+        {
+            ApplyRotation(rotationStrength);
+        }
+    }
+    private void ApplyRotation(float rotationThisFrame)
+    {
+        rb.freezeRotation = true;
+        transform.Rotate(Vector3.forward * rotationThisFrame * Time.fixedDeltaTime);
+        rb.freezeRotation = false;
+    }
+}
+    
+
+- 
 
 
 

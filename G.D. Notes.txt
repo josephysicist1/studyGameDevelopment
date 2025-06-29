@@ -1220,9 +1220,195 @@ hızı artırmak istediğinde movement classı ile bağlantı kurması gerekiyor
 
 - Unity'de unity ekibi tarafından tanımlanmış birçok class var, bunlara erişmek için relevant namespace'i bilmemiz gerekiyor.
 
+- using UnityEngine.InputSystem; bu namespace'i e Movement scriptine ekledik
+
+- By accesing the class, we acces its content using the dot operator. "ClassName.MethodName();"
+
+- Class ve script burada aynı anlamda kullanılacak çünkü burada her bir scriptte bir class var. Normalde bir scriptte birden fazla class yazabilirsin ancak
+biz bir scriptte bir class olacak şekilde ayarlayacağız.
+
+- Bir tane empty game object oluşturup, transform değerlerini resetledikten sonra Launch Pad'e yerleştirdiğimiz rocketin de transform değerlerini resetleyip iki
+objectin cakısmasını sağlıyoruz sonrasında da rocket objectimizi hierarchy içinde empty game object'in child'ı yapıyoruz. Why did we do this ? What I want to do 
+is put all of my scripts and rigidbody and logic onto the parent level, because then it is gonna control everything thats going to go on. It is gonna control the left
+and the right. It is gonna control how it moves and the child underneath is just how it looks, it is just a visuals of it. Ne zaman görüntüsünü değiştirmek istesem,
+o zaman child'ı silip istediğim şeyi atabilirim empty objectin içine, bütün logic ve scriptleri de parent'a bağladığım için de herhangi bir kaybım olmaz.
+
+- Burada simplest input approach kullanacağız, buna Input Action Bindings in the inspector diyoruz. Input Actions allow us to use multiple input systems(keyboard, controller) to do
+specific things in our game. Eg spacebar or trigger to control thrusting.
+
+- Kullanacagımız input system approach'ı için izleyeceğimiz adımlar :
+	1- Use the UnityEngine.InputSystem namespace
+	2- Create InputAction variables(that are serialized)
+	3- Add bindings for each InputAction
+	4- Enable each InputAction
+	5- Use the value of InputAction for gameplay
+	6- Disable each InputAction if/ when we need to turn off input
+
+-
+using UnityEngine;
+using UnityEngine.InputSystem;
+public class Movement : MonoBehaviour
+{
+    [SerializeField] InputAction thrust;
+}
+
+Burada InputAction typeında bir değişkenimiz var ve şimdi de bunu enable hale getirmemiz gerekiyor.
+
+- Unity'nin dökümantasyonunda order of execution'ı incelerken en üstte Awake fonksiyonu vardı, onun hemen altında da OnEnable fonksiyonu var. Bunlar Start fonksiyonundan 
+önce gerçekleşen şeyler. Dökümantasyonda sırasıyla Awake -> OnEnable -> Reset -> Start … ilk dördü oluşturuyor. Initialization kısmında Awake ve OnEnable varken, Editor kısmında 
+Reset var ve yine Initialization kısmında Start var.
+
+- It might be you have your game object come alive at the start of the game and then you want to pause it or turn it off when the player dies, and then turn it back on again 
+and turn it off and turn it. So the protocol for turning our input actions on and off is to use OnEnable as the callback for turning them on and OnDisable. Bu fonksiyon da 
+order of execution'da en alttan bir üstte. En altta OnDestroy fonksiyonu var.
+
 - 
+using UnityEngine;
+using UnityEngine.InputSystem;
+public class Movement : MonoBehaviour
+{
+    [SerializeField] InputAction thrust;
+    void OnEnable()
+    {
+        thrust.Enable();
+    }
+}
 
+Aynı Start() ve Update() metotlarında olduğu gibi burada da OnEnable metodunu yazıp, InputAction tipindeki değişkenimizi Enable() fonksiyonunu çağırarak enabled duruma getiriyoruz.
 
+- Burada değişkeni SerializeField olarak tanımladık, bundan sonra Unity arayüzüne gelip "Player Rocket" olarak adlandırdığımız ve model rocketin parentı olarak ayarladığımız empty game objectimizin 
+inspectorunda script altında Thrust değişkenini görüyoruz. O değişkenin yanında "+" işareti var, burası "bindings" kısmından sorumlu.
+
+- The binding is basically saying what is the key press or button thing or the direction of the controller that you want me to bind to this particular variable.
+
+- Binding'i temsil eden +'ya tıkladıktan sonra "Add Binding" diyoruz. Altında "<No Binding>" yazan bir yer açılıyor. Buraya çift tıkladıktan sonra "Path" kısmından neyle bağlayacağın kısmına burada karar veriyorsun. Burada keyboard,
+Mouse, joystick, pointer, pen, sensor... gibi bir çok seçenek var. Biz "space" tuşunu thrust olarak kullanacağımız için Keyboard'dan space'i seçiyoruz. Seçeceğin şeyi bulamazsan Path kısmına tıklayınca Listen var,
+burası senin keyboardda basacağın tuşu dinliyor, buna tıkladıktan sonra space'e basarsan da istediğin sonucu elde edersin. Burada space'e ek olarak, Game Pad'den Right Trigger kısmını da ekliyoruz.
+
+- Bu ayarlamaları yaptıktan sonra kontrol etmemiz gerekiyor. 
+	1- Create an if statement to print something when we are pressing the space key
+	2- In Update(), check if thrust.IsPressed() is true.
+	3- If it is true, print smt to the console
+
+- 
+using UnityEngine;
+using UnityEngine.InputSystem;
+public class Movement : MonoBehaviour
+{
+    [SerializeField] InputAction thrust;
+    void OnEnable()
+    {
+        thrust.Enable();
+    }
+    void Update()
+    {
+        if (thrust.IsPressed())
+        {
+            Debug.Log("THRUST!!!");
+        }
+    }
+}
+
+- Bir objecti oyun içinde hareket ettirmenin 2 yolu var, ya Transform altındaki position değerlerini değiştireceksin ya da Unity Physics system kullanacaksın, yani biraz kuvvet uygulayacaksın ve
+fizik sistemi geri kalan her şeyi halledecek. Burada gravity felan da devreye girmesi gerektiği için önce rigidbody eklememiz gerekiyor. Parent game objectimize, Player Rocket diye adlandırdığımız,
+add component kısmından rigidbody ekliyoruz ancak bunu ekledikten sonra oyunu calıstırdıgımızda rocket aşağı tarafa doğru gitmeye başlıyor çünkü collider yok. BoxCollider'ı da eklememiz gerekiyor.
+Burada boxCollider'ın center ve size değerlerini objectimizi kaplayacak şekilde ayarlıyoruz. Tıklayınca bu sefer üzerinde durduğu Launching Pad'in içinden geçip ground'un üzerinde kaldı. Bunun için
+Launchin Pad'e de collider eklememiz gerekiyor.
+
+- Imported assetlerle ilgili önemli bir detay var, if we import an fbx model we can drop it into our scene however we like. Scale it, rotate it... However we cant alter the original model file, we cant alter
+the FBX file itself thats why, we cant "apply back to prefab". If we use one of these models from our scene to create a prefab, it will create a "prefab variant". Changes made to one Prefab Variant Instance will be
+applied to other instances, but not the original artwork.
+
+- Prefab Variant oluşturmak için de önce asset folderında önceki projede yaptığımız gibi Prefab folderı oluşturuyoruz. Launching ve Landing pad'leri import ettiğimiz modelleri sürükleyip bırakarak yapmıştık ancak burada
+landing pad'i kaldırıyoruz. Launching pad'i prefab folderına sürükleyerek "prefab variant" haline getirdik. Bu aslında bir şeyin kopyasının kopyası gibi. Artık burada aynen prefablerdeki instancelara yaptığımız "apply all"
+seçeneğini kullanabileceğiz.
+
+- Prefab variant'ı landing pad olarak scene'e ekledik. Collider'ı içinde geldi.
+
+- Rocketimize rigidbody ekledik, bunu kod dosyamızda da tanımlayıp, buna erişmemiz gerekiyor. "RigidBody rb;" şeklinde tanımlıyoruz.
+
+- 
+using UnityEngine;
+using UnityEngine.InputSystem;
+public class Movement : MonoBehaviour
+{
+    [SerializeField] InputAction thrust;
+    Rigidbody rb;
+    void OnEnable()
+    {
+        thrust.Enable();
+    }
+    void Update()
+    {
+        if (thrust.IsPressed())
+        {
+            Debug.Log("THRUST!!!");
+        }
+    }
+}
+
+-
+using UnityEngine;
+using UnityEngine.InputSystem;
+public class Movement : MonoBehaviour
+{
+    [SerializeField] InputAction thrust;
+    Rigidbody rb;
+    void Start()
+    {
+        rb = GetComponent<Rigidbody>();
+    }
+    void OnEnable()
+    {
+        thrust.Enable();
+    }
+    void Update()
+    {
+        if (thrust.IsPressed())
+        {
+            Debug.Log("THRUST!!!");
+        }
+    }
+}
+
+RigidBody'nin componentlerini "rb" değişkenine atadık. Buradan sonra da Update içinde force uygulamamız gerekiyor ancak buradaki update, FixedUpdate() metodu.
+Bunu unity dokümantasyonundaki order of execution'daki "Physics" kısmının en başındaki fonksiyon olarak göreceksin. Update fonksiyonu ise Game Logic kısmında.
+
+- Burada dikkat etmen gereken nokta eğer Update() ve FixedUpdate() fonksiyonlarında ayrı ayrı fiziksel işler yaparsan işleri kontrolden çıkarırsın, kameranın 
+titremesini görürsün. Bundan dolayı kod dosyamızda tanımladığımız Update metodunun adını FixedUpdate olarak değiştiriyoruz.
+
+- 
+using UnityEngine;
+using UnityEngine.InputSystem;
+public class Movement : MonoBehaviour
+{
+    [SerializeField] InputAction thrust;
+    Rigidbody rb;
+    void Start()
+    {
+        rb = GetComponent<Rigidbody>();
+    }
+    void OnEnable()
+    {
+        thrust.Enable();
+    }
+    private void FixedUpdate()
+    {
+        if (thrust.IsPressed())
+        {
+            Debug.Log("THRUST!!!");
+        }
+    }
+}
+
+- Burada local ve global positionlara dikkat etmen gerekiyor. Global positionlar, scene'de sağ üstteki koordinat düzleminin gösterdiği poisitionlar ve asla değişmezler. Yani sen eğer globalde
+y ekseninde force uygularsan y'de ilerleyecek ancak diyelim ki rocketini 45 derece saat yönünde yatırdın ve global positiondayken yine force uyguladın o zaman 45 açıyla ilerlemen gerekirken yine dikey kalkış
+yaparsın ki bu da roket mantığına aykırı. Local position kullandığında ise, roketi 45 derece saat yönünde yatırırsan eksenler de , y ekseni de 45 derece saat yönünde yatacak ve thrusterlar calıstıgında roket
+45 derece saat yönünde ilerleyecek.
+
+- Burada ekleyeceğimiz force fonksiyonu, addrelativeforce olacak çünkü bu force local positionlar ile alakalı.
+
+- 
 
 
 

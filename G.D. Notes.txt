@@ -1408,13 +1408,274 @@ yaparsın ki bu da roket mantığına aykırı. Local position kullandığında 
 
 - Burada ekleyeceğimiz force fonksiyonu, addrelativeforce olacak çünkü bu force local positionlar ile alakalı.
 
+- Rigidbody componentindeki mass ile oynayabilirsin.
+
 - 
+using UnityEngine;
+using UnityEngine.InputSystem;
+public class Movement : MonoBehaviour
+{
+    [SerializeField] InputAction thrust;
+    Rigidbody rb;
+    void Start()
+    {
+        rb = GetComponent<Rigidbody>();
+    }
+    void OnEnable()
+    {
+        thrust.Enable();
+    }
+    private void FixedUpdate()
+    {
+        if (thrust.IsPressed())
+        {
+            rb.AddRelativeForce(100,0,0);
+        }
+    }
+}
 
+- rb.AddRelativeForce(0,10,0); bu kod bloğu bizim objecti yukarı taşımak için gereken kod bloğu, aynı işi rb.AddRelativeForce(Vector3.up); ile de yapabiliriz.
 
+- Burada yapacağımız birkaç işlem kaldı. Vector3.up 'ın karşılığı (0,1,0). Bunu güçlendirmemiz için thrustStrength değişkeni oluşturacağız, sonrasında da bunu
+frame rate independent yapmamız lazım. Önceki projede Update metodu içindeyken Time.deltaTime kullanmıştık ancak burada FixedUpdate içindeyiz, bundan dolayı
+Time.fixedDeltaTime kullanacağız.
 
+- 
+using UnityEngine;
+using UnityEngine.InputSystem;
+public class Movement : MonoBehaviour
+{
+    [SerializeField] InputAction thrust;
+    [SerializeField] int thrustStrength = 100;
+    Rigidbody rb;
+    void Start()
+    {
+        rb = GetComponent<Rigidbody>();
+    }
+    void OnEnable()
+    {
+        thrust.Enable();
+    }
+    private void FixedUpdate()
+    {
+        if (thrust.IsPressed())
+        {
+            rb.AddRelativeForce(Vector3.up * thrustStrength * Time.fixedDeltaTime);
+        }
+    }
+}
 
+Burada Time.fixedDeltaTime'dan dolayı rocket çok çok az ilerliyor çünkü bu değer bayağı küçük. Bundan dolayı strength'i çok yüksek bir değere çekmemiz lazım.
 
+- Şimdi de rotation binding yapacağız, sağ ok tusu bize 1 değerini verirken sol ok tusu bize -1 değerini verecek.
 
+- Şimdi movement scripti içinde InputAction tipinde bir SerializeField olarak bir rotation değişkeni tanımlayacağız sonrasında da bunu OnEnable fonksiyonu içinde
+enable haline getireceğiz. Sonrasında da unity arayüzüne gelince sağda inspector altındaki script altında değişkeni göreceğiz. Burada +'ya tıklayarak binding yapacağız
+ancak ilkinde yaptığımız gibi add binding değil, burada negatif ve pozitif değerler de işin içine gireceği için seçimi ona göre yapacağız. Burada seçeceğimiz kısım "Add positive/negative binding"
+Sonrasında eklenen yerde negative binding kısmına keyboard -> left arrow 'u atarken, positive binding kısmına keyboard -> right arrow kısmını atacağız. Rotation altındaki "1D Axis" yazan 
+ve keyboard ayarının oldugu yerdeki bu "1D Axis" yazısını değiştirip istediğini yazabilirsin, buraya Keyboard yazdık. Burada aynı şekilde, rotation'a bir de gamepad için ekleme yapacağız. 
+Burada gamepad kısmından negatif ayarını left stick/left olarak değiştirip, sağ ayarını da right stick/right olarak değiştireceğiz.
+
+- Burada yazacağımız kodda if (rotation.IsPressed()) tarzında bir şey kullanamayız çünkü rotation'ın negatif ve pozitif değerlerine ayrı ayrı tuş tanımladık. Burada yapacağımız
+şey "ReadValue<float>"  kullanmak, çünkü bastığımız ok tuşlarından okuyacağımız değer ya pozitif olacak ne ya negatif olacak. Buradan bir değer döndüreceği için bunu da bir değişkene
+atamamız gerekecek.
+
+- "ReadValue<float>" bu şekilde yazsak bile burada ya 1 ya da -1 değeri dönüyor.
+
+- Burada sonraki aşama, bu zamana kadar script, rigid body ve collider eklediğimiz roketin parent objectini yani Player Rocket'ı Prefab folderının içine atıp Prefab Variant
+durumuna getiriyoruz.
+
+- 
+using UnityEngine;
+using UnityEngine.InputSystem;
+public class Movement : MonoBehaviour
+{
+    [SerializeField] InputAction thrust;
+    [SerializeField] InputAction rotation;
+    [SerializeField] int thrustStrength = 100;
+    Rigidbody rb;
+    void Start()
+    {
+        rb = GetComponent<Rigidbody>();
+    }
+    void OnEnable()
+    {
+        thrust.Enable();
+        rotation.Enable();
+    }
+    private void FixedUpdate()
+    {
+        ProcessThrust();
+        ProcessRotation();
+    }
+    private void ProcessThrust()
+    {
+        if (thrust.IsPressed())
+        {
+            rb.AddRelativeForce(Vector3.up * thrustStrength * Time.fixedDeltaTime);
+        }
+    }
+    private void ProcessRotation()
+    {
+        float rotationInput = rotation.ReadValue<float>();
+        Debug.Log("Rotation : " + rotationInput);
+    }
+}
+   
+- Buraya şimdi de şunu ekleyeceğiz, eğer rotation değeri pozitif ise sağa rotate et, negatifse sola rotate et
+
+- 
+private void ProcessRotation()
+    {
+        float rotationInput = rotation.ReadValue<float>();
+        if (rotationInput > 0)
+        {
+            transform.Rotate(0f, 0f, 1f);
+        }
+    }
+
+Buradaki rotate kısmında koordinatları Vector3 ile de yazabiliriz.
+
+private void ProcessRotation()
+    {
+        float rotationInput = rotation.ReadValue<float>();
+        if (rotationInput > 0)
+        {
+            transform.Rotate(Vector3.forward);
+        }
+    }
+
+Burada Mouse ile "forward" yazısı üzerine geldiğimizde bize (0,0,1)'e eşit olduğunu söylüyor.Oyunu çalıştırdıgında pozitif value'nun oyunda
+sola rotate ettirdiğini görüyorsun, bundan dolayı transform.Rotate(Vector3.forward); kod satırını transform.Rotate(Vector3.back); olarak değiştireceksin,
+bu da bize (0,0,-1) değerini verecek. Ya da bunun diğer bir yolu ise transform.Rotate(-Vector3.forward); yazmak yani Vector3 değerinin başına minus sign
+koymak.
+
+- İki tane if condition'ı alt alta yazmak bu case için sıkıntılı, ya aynı anda hem negatif hem pozitif değer gelirse ne olacak. Bundan dolayı if-elseif yapısını
+burada kullan.
+
+- Şimdi rotation'ı frame rate independent yapacagız ancak Time.fixedDeltaTime değeri çok çok küçük oldugu için, thrust'a yaptıgımız gibi rotationStrength adında bir değişken
+tanımlayıp onu kullanacagız. 
+
+-
+using UnityEngine;
+using UnityEngine.InputSystem;
+public class Movement : MonoBehaviour
+{
+    [SerializeField] InputAction thrust;
+    [SerializeField] InputAction rotation;
+    [SerializeField] int thrustStrength = 1000;
+    [SerializeField] float rotationStrength = 1000f;
+    Rigidbody rb;
+    void Start()
+    {
+        rb = GetComponent<Rigidbody>();
+    }
+    void OnEnable()
+    {
+        thrust.Enable();
+        rotation.Enable();
+    }
+    private void FixedUpdate()
+    {
+        ProcessThrust();
+        ProcessRotation();
+    }
+    private void ProcessThrust()
+    {
+        if (thrust.IsPressed())
+        {
+            rb.AddRelativeForce(Vector3.up * thrustStrength * Time.fixedDeltaTime);
+        }
+    }
+    private void ProcessRotation()
+    {
+        float rotationInput = rotation.ReadValue<float>();
+        if (rotationInput > 0)
+        {
+            transform.Rotate(Vector3.back * rotationStrength * Time.fixedDeltaTime); // transform.Rotate(-Vector3.forward);
+        }
+        else if (rotationInput < 0)
+        {
+            ApplyRotation(rotationStrength);
+        }
+    }
+    private void ApplyRotation(float rotationThisFrame)
+    {
+        transform.Rotate(Vector3.forward * rotationThisFrame * Time.fixedDeltaTime);
+    }
+}
+Burada methodları parametrelerle tanımlamayı görüyoruz. RotationInput'ın pozitif olduğu durumda da ApplyRotation(-rotationStrength) yazacağız. Normalde minus sign ı Vector3 önüne koymuştuk ancak
+çarpım durumunda olduğu için nerede olacağının cok bir önemi yok.
+
+-
+using UnityEngine;
+using UnityEngine.InputSystem;
+public class Movement : MonoBehaviour
+{
+    [SerializeField] InputAction thrust;
+    [SerializeField] InputAction rotation;
+    [SerializeField] int thrustStrength = 1000;
+    [SerializeField] float rotationStrength = 1000f;
+    Rigidbody rb;
+    void Start()
+    {
+        rb = GetComponent<Rigidbody>();
+    }
+    void OnEnable()
+    {
+        thrust.Enable();
+        rotation.Enable();
+    }
+    private void FixedUpdate()
+    {
+        ProcessThrust();
+        ProcessRotation();
+    }
+    private void ProcessThrust()
+    {
+        if (thrust.IsPressed())
+        {
+            rb.AddRelativeForce(Vector3.up * thrustStrength * Time.fixedDeltaTime);
+        }
+    }
+    private void ProcessRotation()
+    {
+        float rotationInput = rotation.ReadValue<float>();
+        if (rotationInput > 0)
+        {
+            // transform.Rotate(Vector3.back * rotationStrength * Time.fixedDeltaTime); 
+            // transform.Rotate(-Vector3.forward);
+            ApplyRotation(-rotationStrength);     
+        }
+        else if (rotationInput < 0)
+        {
+            ApplyRotation(rotationStrength);
+        }
+    }
+    private void ApplyRotation(float rotationThisFrame)
+    {
+        transform.Rotate(Vector3.forward * rotationThisFrame * Time.fixedDeltaTime);
+    }
+}
+
+- Şimdi de rocketi takip edecek bir cinemachine camera eklememiz gerekecek.
+
+- Window -> Package Manager ve buradan da cinemachine kamerayı ekle ve hierarchy içinde de "cinemachine camera"yı ekle.
+Sonrasında da Main Camera'ya tıkla ve sağda inspector altında "cinemachine camera brain"'in eklenip eklenmediğini kontrol et.
+
+- Hierarchy altındaki "Cinemachine Camera"'ya tıkla ve sonrasında da sağda "Tracking Target"'ı Rocketin parent objecti yap. Sonrasında biraz altında 
+"Procedural Component" kısmındaki Position Control, Rotation Control değerlerini ayarlar. Position Control değerini "Follow"'a çek, Rotation Control değerini
+ise "None"da bırak çünkü kameranın rotate edeceği bir oyun değil. Sonrasında da alt tarafta Position Control'u Follow yaptıktan sonra açılmış olan "Cinemachine Follow"
+kısmından da Follow Offset ayarlarını ayarlayarak kameranın konumunu netleştir.
+
+- Yukarıda Game sekmesi altında "Free Aspect" ayarından ekran ratiolarını ayarlayabilirsin.
+
+- Şimdi de Rotation Control kısmını "Spline Dolly Look At Targets" olarak değiştiriyoruz.
+
+- Burada dikkat edersen, oyun ve kamera titriyor, bunun sebebi de daha öncesinde belirttiğimiz gibi Update metodu. Bu sorunu çözmek için
+Main Camera objectine geliyoruz, Altta "Cinemachine Brain" altında "Update Method" var. Burası "Smart Update" olarak ayarlanmış ancak bunu "FixedUpdate"'e çekiyoruz.
+
+- 
 
 
 

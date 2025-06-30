@@ -2600,5 +2600,32 @@ public class Movement : MonoBehaviour
     
 En son haliyle Movement.cs
 
+- Now, I am adding some "debug keys" so that I can cycle from level to level to level. Burada CollisionHandler.cs scriptinde Update metodu içine
+RespondToDebugKeys() metodunu çağıracağım ancak bu metodu CollisionHandler içinde Update metodu altında tanımlayacagım ve "L" tuşuna basılınca, next level'a geçecek. To test if a key is pressed we use :
+Keyboard.current.Xkey.isPressed
+
 - 
+void RespondToDebugKeys()
+    {
+        if (Keyboard.current.lKey.isPressed)
+        {
+            LoadNextLevel();
+        }
+    }
+
+Burada hangi tuşa basacaksan current'dan sonra lKey ya da aKey şeklinde yazacaksın.
+
+- 
+else if (Keyboard.current.cKey.wasPressedThisFrame)
+        {
+            isCollidable = !isCollidable;
+            Debug.Log("c key was pressed");
+        }
+Normalde isPressed vardı ancak defalarca kez isPressed kısmı update için çağrılıyor ve bu da sorun yaratıyor. Onun yerine wasPressedThisFrame kullanıp, bir kere basılıp basılmadığını halledeceğiz.
+
+-  
+
+
+
+
 

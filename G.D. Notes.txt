@@ -2148,8 +2148,186 @@ Movement scriptine giderek orada Enable haline getirdiğim thrust ve rotation'ı
 bu iki script'in yanında checked işaretleri belli. Burada şunu yapabiliyorum, CollisionHandler scriptinden vereceğim bir komutla Movement scriptini devre dışı bırakabiliyorum, yani bir 
 süre unchecked duruma sokabiliyorum.
 
-- Script de olsa Movement bir component ve buna erişebilmek için GetComponent'ı kullanacağım.
+- Script de olsa Movement bir component ve buna erişebilmek için GetComponent'ı kullanacağım. CollisionHandler içinde yazacağım satır 
+ GetComponent<Movement>().enabled = false; olacak. Bu şekilde Movement scriptine erişerek scripti bir süreliğine devre dışı bırakıyorum
 
+void StartCrashSequence()
+    {
+        GetComponent<Movement>().enabled = false;
+        Invoke("ReloadLevel", 2f);
+    }
+
+- Code dosyanı düzenlerken izlemen gereken bir layout var. Önce değişken tanımlamaların SerializeField olacak ya da olmayacak şekilde sonra Cacheler yani caching variables
+Rigidbody rb; gibi, en sonunda da State , private instances (member) variables mesela bool isAlive; 
+
+- Artık burada yapacağımız şey Multiple Auido Clip eklemek. Yani çarpma durumunda çarpma sesi eklenecek ama arkada thrusterlar çalışıyor ya da landing pad'e ulaşınca
+başarılı olduğunu gösterir sound'ı çalmasını isteyeceğiz.
+
+- Burada unity dökümantasyonunu inceleyince AudioSource.PlayOneShot metodunu göreceksin. Bu metod içine 2 parametre alacak (AudioClip clip, float VolumeScale = 1.0F )
+
+- Burada SerializeField tipinde bir mainEngine değişkeni oluşturuyoruz ancak bunu Movement scriptinde yapıyoruz.
+
+- 
+using UnityEngine;
+using UnityEngine.InputSystem;
+public class Movement : MonoBehaviour
+{
+    [SerializeField] InputAction thrust;
+    [SerializeField] InputAction rotation;
+    [SerializeField] int thrustStrength = 1000;
+    [SerializeField] float rotationStrength = 100f;
+    [SerializeField] AudioClip mainEngine;
+    AudioSource audioSource;
+    Rigidbody rb;
+    void Start()
+    {
+        audioSource = GetComponent<AudioSource>();
+        rb = GetComponent<Rigidbody>();
+    }
+    void OnEnable()
+    {
+        thrust.Enable();
+        rotation.Enable();
+    }
+    private void FixedUpdate()
+    {
+        ProcessThrust();
+        ProcessRotation();
+    }
+    private void ProcessThrust()
+    {
+        if (thrust.IsPressed())
+        {
+            rb.AddRelativeForce(Vector3.up * thrustStrength * Time.fixedDeltaTime);
+            if (!audioSource.isPlaying)
+            {   
+                audioSource.PlayOneShot(mainEngine);
+            }
+        }
+        else
+        {
+            audioSource.Stop();
+        }
+    }
+    private void ProcessRotation()
+    {
+        float rotationInput = rotation.ReadValue<float>();
+        if (rotationInput > 0)
+        {
+            // transform.Rotate(Vector3.back * rotationStrength * Time.fixedDeltaTime); 
+            // transform.Rotate(-Vector3.forward);
+            ApplyRotation(-rotationStrength);     
+        }
+        else if (rotationInput < 0)
+        {
+            ApplyRotation(rotationStrength);
+        }
+    }
+    private void ApplyRotation(float rotationThisFrame)
+    {
+        rb.freezeRotation = true;
+        transform.Rotate(Vector3.forward * rotationThisFrame * Time.fixedDeltaTime);
+        rb.freezeRotation = false;
+    }
+}
+    
+"[SerializeField] AudioClip mainEngine;" değişkeni tanımladıktan sonra "audioSource.PlayOneShot(mainEngine);" satırıyla düzenlemeyi yapıyoruz. Sonrasında
+unity arayüzüne gelince Player Rocket objectinin inspectorundaki Movement scriptinin altında Main Engine değişkenini görüyorsun ve yanında senden bir ses dosyasına assign etmeni
+bekliyor.
+
+-Şimdi de çarpışma durumunda ve landing pad'e erişme durumunda hangi soundları kontrol edeceğiz. Bundan dolayı önce CollisionHandler scriptine geliyoruz, sonrasında orada SerializeField olacak 
+şekilde AudioClip tipinde 2 değişken tanımlıyoruz. Biri success durumu diğeri de çarpışma durumu için. Sonrasında da AudioSource audioSource olacak şekilde bir değişken tanımlıyoruz. Sonrasında
+Start metodunu tanımlayıp, audioSource değişkenini cacheliyoruz: audioSource = GetComponent<AudioSource>();
+
+-
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+public class CollisionHandler : MonoBehaviour
+{
+    [SerializeField] float levelLoadDelay = 2f;
+    [SerializeField] AudioClip success;
+    [SerializeField] AudioClip crash;
+    AudioSource audioSource;
+    void Start()
+    {
+        audioSource = GetComponent<AudioSource>();
+    }
+    void OnCollisionEnter(Collision collision)
+    {
+        switch (collision.gameObject.tag)
+        {
+            case "Friendly":
+                Debug.Log("BEGIN");
+                break;
+            case "Finish":
+                Debug.Log("FINISH");
+                StartSuccessSequence();
+                break;
+            case "Fuel":
+                Debug.Log("FUEL");
+                break;
+            default:
+                StartCrashSequence();
+                break;
+
+        }
+    }
+    void StartSuccessSequence()
+    {
+        audioSource.PlayOneShot(success);
+        GetComponent<Movement>().enabled = false;
+        Invoke("LoadNextLevel", levelLoadDelay);
+    }
+    void StartCrashSequence()
+    {
+        audioSource.PlayOneShot(crash);
+        GetComponent<Movement>().enabled = false;
+        Invoke("ReloadLevel", levelLoadDelay);
+    }
+    void LoadNextLevel()
+    {
+        int nextScene = SceneManager.GetActiveScene().buildIndex + 1;
+        if (nextScene == SceneManager.sceneCountInBuildSettings)
+        {
+            nextScene = 0;
+         }
+        SceneManager.LoadScene(nextScene);
+    }
+    void ReloadLevel()
+    {
+        int currentScene = SceneManager.GetActiveScene().buildIndex;
+        SceneManager.LoadScene(currentScene);
+    }
+}
+
+
+
+[SerializeField] AudioClip success;
+[SerializeField] AudioClip crash;
+AudioSource audioSource;
+
+Burada değişkenleri tanımladık ve altta crash ve nextlevel'a geçeceği durumlarda da audioSource.PlayOneShot(success); ya da parametre olarak crash yazdık. Şimdi de 
+unity arayüzüne girerek sağda inspector altında o serializefield değişkenlerine o sound dosyalarını atayacağız. Bu değişkenleri CollisionHandler scriptinde yazdığımız için
+sağda inspector altında ses dosyalarının atamalarını CollisionHandler scripti altında göreceğiz.
+
+- Burada şu durumla karşılaşıyorsun: Ses dosyalarının düzgün calıstıgı scene'den sonraki scene geçtiğinde orada ses dosyaları çalışmıyor. Bunun sebebi de bir scene'de yaptığın bu 
+değişken tanımlamalarının, ses dosyaları atamalarını prefab'in tamamına uygulaman lazım. Yoksa yaptığın değişiklik sadece o scene için geçerli oluyor. Burada suna dikkat et
+böyle geneli kapsayan ayarlamalar için bir scenei kullan ve sonra prefab kısmından apply all'a tıkla. Bir scene'de bir değişiklik yapıp diğer scene'de başka bir değişiklik yaparsan işi
+içinden çıkılamaz hale getirirsin.
+
+- Şimdi state durumunu bool tipinde bir değişken kullanarak ayarlayacağız. Ancak bundan önce unity'nin default skybox colorını ayarlayacağız. Ayarlanmamış hali açık mavi, yani gökyüzüne baktığında
+gördüğün mavi. Bunun ayarlaması için önce Assets folderına gelerek bir Material folderı oluşturuyoruz. Sonrasında folder içine gelip sağ tıklayıp create->rendering->material kısmından bir material 
+oluşturuyoruz. Material'ın inspector'ı altında "Shader" kısmında "Universal Render Pipeline…" yazısının olduğu yere tıklayarak oradan "Skybox" sonrasında da "Procedural"'ı seçiyoruz. Bize direkt olarak
+unity'nin gökyüzü görüntüsünü inspector altında veriyor.
+
+- Material'ın inspector altındaki "Sky Tint" kısmından rengi seçip sonrasında sürükleyip oyun içine bırakarak gökyüzü rengini değiştiriyoruz. Burada yapacağın diğer bir ayar da "atmosphere thickness"
+bu ayarı artırman gökyüzünü yeşilin koyu tonlarına doğru götürtecek. Ground'ı siyah yapıp Exposure ayarını en sola çekersen oyuna eklediğin objectlerin dışında her şey tamamen siyah olacak.
+
+- Solda Directional Light intensity'sini artırarak oyundaki gölgelerin karanlık değerlerini ve cisimlerin üzerine ışık düşünce gösterdikleri parlaklığı ayarlayabilirsin
+
+- Burada yapacağımız bir ayarlama da şu olacak, eğer roket bir yere çarptıktan sonra landing pad'ine değerse yani oraya çarparsa hem crash hem de success sesi çıkıyor, bunu engellemek için
+burada bool tipinde bir değişken ile state kontrolü yapacağız. Bu değişkeni CollisionHandler içinde tutacağız.
 
 
 

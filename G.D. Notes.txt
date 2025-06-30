@@ -2441,80 +2441,164 @@ o değişkenleri Parent objectin altındaki particlelarla bağla.
     [SerializeField] ParticleSystem successParticles;
     [SerializeField] ParticleSystem crashParticles;
 Bu şekilde CollisionHandler içinde tanımladıktan sonra, bu particleların calısacagı conditionlara gelip successParticle.Play(); komutunu yazacağız.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+En sonunda da Prefab kısmına gelip "Apply All" diyeceğiz.
+
+- Şimdiki aşamada yapacağımız şey, roketin arkasında bıraktığı particleları eklemek. Gerçek hayatta bu roketin arkasında gördüğün büyük bir ateş topuna tekabül ediyor. Ancak burada
+left thruster, right thruster ve main enginenın thrust'ını halledeceğiz.
+
+- Import ettiğim package içinde sadece Side Thruster adında bir tane particle var. Bunu left ve right olarak ben ayarlayacağım. 
+
+- Over scene'i içindeyken Rocket Jet Particles objectini Player Rocket objecti onun parent'ı olacak şekilde Player Rocket altına ekliyorum. Bundan sonra Rocket Jet Propulsion koordinatlarını
+0,0,0 yapınca da tam olarak roketin üzerinde olacak. Çünkü bu durumda parent'ına göreceli olarak konumlanıyor yani parent'ını origin olarak tanıyor.
+
+- Koordinatlarını ayarladıktan sonra jet particle'ın çıkış şeklini beğenmediysen Shape kısmından şekil ayarlaması yapabilirsin ya da shape kısmına hiç bulaşmadan 
+Radius ayarlayarak daha geniş bir propulsion alanı elde edebilirsin. Rate over Time kısmınıdaki değeri yükselterek particle yoğunluğunu halledebilirsin.
+
+- Rocket jet particles inspectorunda Radius, rate over time gibi kısımları ayarladıktan sonra Hierarchy içindeki rocket jet propulsion objectinin kenarında yeşil bir artı görünecek. Bu işaret
+yapılan değişiklikleri prefab'e eklemediğini gösteriyor. Prefab'e eklemeden önce Side thruster particles'ı Player Rocket objectinin childı olacak şekilde hierarchy içinde konumlandırıyorum sonrasında 
+bunu sağdaki iticinin altında konumlandırdıktan sonra adını Right Thruster Particles olarak değiştiriyorum.Sonrasında bir daha Side Thruster Particle ekleyerek bunu da rotate ettirerek soldaki iticinin 
+altına konumlandırıyorum. Bunları yaptıktan sonra 3 particle objectinde de Rocket Jet Particles, Left Thruster Particles ve Right Thruster Particles kısmında yeşil artılar çıktı. Parent Objecte
+yani Player Rocket'e gelip Prefab kısmından Apply All'a tıklayarak yaptığım değişiklikleri prefab'e ekliyorum
+
+- Artık kod kısmında ayarlamaları yapacağız, Movement scripte gelerek 3ü de serializefield ve ParticleSystem tipinde olacak şekilde mainEngineParticles, Left ve Right thrusterları tanımlıyorum. SerializeField 
+olarak tanımlamamın nedeni, oyun içinde bunların atamalarını yapıp daha modüler bir kontrole sahip olmak. Bunları tanımladıktan sonra Unity arayüzüne gelerek bunları component altındaki scriptin içinde değişkenleri
+bağladık. Burada tekrardan suna dikkat et, engine thrusterları bağlarken Hierarchy içindeki objectlerle bağla. Folder içinden bağladıklarının Scene içindeki konumlarını bilmiyorsun. Bundan dolayı konumlarını ayarladığın
+asıl objectlerle bağlaman daha doğru olur.
+
+- Movement scripti içinde asıl engine'ın thrust particlelarını ProcessThrust metodu içinde yazacağım ancak side thrust işini rotation metodu içinde yazacağım.
+ 
+   private void ProcessThrust()
+    {
+        if (thrust.IsPressed())
+        {
+            rb.AddRelativeForce(Vector3.up * thrustStrength * Time.fixedDeltaTime);
+            if (!audioSource.isPlaying)
+            {
+                audioSource.PlayOneShot(mainEngineSFX);
+            }
+            mainEngineParticles.Play();
+        }
+        else
+        {
+            audioSource.Stop();
+            mainEngineParticles.Stop();
+        }
+    }
+
+
+private void ProcessRotation()
+    {
+        float rotationInput = rotation.ReadValue<float>();
+        if (rotationInput > 0)
+        {
+            // transform.Rotate(Vector3.back * rotationStrength * Time.fixedDeltaTime); 
+            // transform.Rotate(-Vector3.forward);
+            ApplyRotation(-rotationStrength);
+            leftThrusterParticles.Play();
+        }
+        else if (rotationInput < 0)
+        {
+            ApplyRotation(rotationStrength);
+            rightThrusterParticles.Play();
+        }
+        else
+        {
+            rightThrusterParticles.Stop();
+            leftThrusterParticles.Stop();
+        }
+    }
+
+Burada particlesları durdurmayı unutma yoksa bir kere basınca sürekli particle atıyor. "rightThrusterParticles.Stop();" ve "rightThrusterParticles.Play();" statementları sayesinde 
+particle emission kontrollerini yapıyoruz.
+
+- Movement.cs
+
+using UnityEngine;
+using UnityEngine.InputSystem;
+public class Movement : MonoBehaviour
+{
+    [SerializeField] InputAction thrust;
+    [SerializeField] InputAction rotation;
+    [SerializeField] int thrustStrength = 1000;
+    [SerializeField] float rotationStrength = 100f;
+    [SerializeField] AudioClip mainEngineSFX;
+    [SerializeField] ParticleSystem mainEngineParticles;
+    [SerializeField] ParticleSystem leftThrusterParticles;
+    [SerializeField] ParticleSystem rightThrusterParticles;
+    AudioSource audioSource;
+    Rigidbody rb;
+    void Start()
+    {
+        audioSource = GetComponent<AudioSource>();
+        rb = GetComponent<Rigidbody>();
+    }
+    void OnEnable()
+    {
+        thrust.Enable();
+        rotation.Enable();
+    }
+    private void FixedUpdate()
+    {
+        ProcessThrust();
+        ProcessRotation();
+    }
+    private void ProcessThrust()
+    {
+        if (thrust.IsPressed())
+        {
+            rb.AddRelativeForce(Vector3.up * thrustStrength * Time.fixedDeltaTime);
+            if (!audioSource.isPlaying)
+            {
+                audioSource.PlayOneShot(mainEngineSFX);
+            }
+            if (!mainEngineParticles.isPlaying)
+            {
+                mainEngineParticles.Play();
+            }
+        }
+        else
+        {
+            audioSource.Stop();
+            mainEngineParticles.Stop();
+        }
+    }
+    private void ProcessRotation()
+    {
+        float rotationInput = rotation.ReadValue<float>();
+        if (rotationInput > 0)
+        {
+            // transform.Rotate(Vector3.back * rotationStrength * Time.fixedDeltaTime); 
+            // transform.Rotate(-Vector3.forward);
+            ApplyRotation(-rotationStrength);
+            if (!leftThrusterParticles.isPlaying)
+            {
+                leftThrusterParticles.Play();
+            }
+            
+        }
+        else if (rotationInput < 0)
+        {
+            ApplyRotation(rotationStrength);
+            if (!rightThrusterParticles.isPlaying)
+            {
+                rightThrusterParticles.Play();
+            }
+        }
+        else
+        {
+            rightThrusterParticles.Stop();
+            leftThrusterParticles.Stop();
+        }
+    }
+    private void ApplyRotation(float rotationThisFrame)
+    {
+        rb.freezeRotation = true;
+        transform.Rotate(Vector3.forward * rotationThisFrame * Time.fixedDeltaTime);
+        rb.freezeRotation = false;
+    }
+}
+    
+En son haliyle Movement.cs
+
+- 
 

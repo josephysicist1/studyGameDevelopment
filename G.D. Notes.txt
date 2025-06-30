@@ -2329,6 +2329,165 @@ bu ayarı artırman gökyüzünü yeşilin koyu tonlarına doğru götürtecek. 
 - Burada yapacağımız bir ayarlama da şu olacak, eğer roket bir yere çarptıktan sonra landing pad'ine değerse yani oraya çarparsa hem crash hem de success sesi çıkıyor, bunu engellemek için
 burada bool tipinde bir değişken ile state kontrolü yapacağız. Bu değişkeni CollisionHandler içinde tutacağız.
 
+- bool isControllable = true; değişkenini CollisionHandler içinde tanımladık. Neden true tanımladık, çünkü sadece crash ve success durumlarında control edilememe durumunu istiyoruz.
+
+- 
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+public class CollisionHandler : MonoBehaviour
+{
+    [SerializeField] float levelLoadDelay = 2f;
+    [SerializeField] AudioClip success;
+    [SerializeField] AudioClip crash;
+    AudioSource audioSource;
+
+    bool isControllable = true;
+    void Start()
+    {
+        audioSource = GetComponent<AudioSource>();
+    }
+    void OnCollisionEnter(Collision collision)
+    {
+        if (!isControllable) { return; }
+
+        switch (collision.gameObject.tag)
+        {
+            case "Friendly":
+                Debug.Log("BEGIN");
+                break;
+            case "Finish":
+                Debug.Log("FINISH");
+                StartSuccessSequence();
+                break;
+            case "Fuel":
+                Debug.Log("FUEL");
+                break;
+            default:
+                StartCrashSequence();
+                break;
+
+        }
+    }
+    void StartSuccessSequence()
+    {
+        isControllable = false;
+        audioSource.Stop();
+        audioSource.PlayOneShot(success);
+        GetComponent<Movement>().enabled = false;
+        Invoke("LoadNextLevel", levelLoadDelay);
+    }
+    void StartCrashSequence()
+    {
+        isControllable = false;
+        audioSource.Stop();
+        audioSource.PlayOneShot(crash);
+        GetComponent<Movement>().enabled = false;
+        Invoke("ReloadLevel", levelLoadDelay);
+    }
+    void LoadNextLevel()
+    {
+        int nextScene = SceneManager.GetActiveScene().buildIndex + 1;
+        if (nextScene == SceneManager.sceneCountInBuildSettings)
+        {
+            nextScene = 0;
+         }
+        SceneManager.LoadScene(nextScene);
+    }
+    void ReloadLevel()
+    {
+        int currentScene = SceneManager.GetActiveScene().buildIndex;
+        SceneManager.LoadScene(currentScene);
+    }
+}
+
+- Şimdi de particle'lara giriyoruz. Roketin altından duman çıkartma ya da particle atmak gibi bir olayı yapacağız.
+
+- Particle System Component'i iki parçadan oluşuyor, emmitter ve particle. Particle System is a Component added to a Game Object. We use modules for controlling behavior. Burada
+dikkat et, Each particle is NOT a GAME OBJECT.
+
+- Şimdi over scene'i içinde Hierarchy içinde sağa tıklayıp effect->particle system yolunu izleyerek oyuna particle system game objecti ekliyorum. Ya da şunu da yapabilirsin,
+empty bir game object ekleyip add component kısmından particle system ekleyebilirsin. Tam olarak aynı şey değil ama kullanım amacına göre aynı işi yapabilir.
+
+- Particle System componentinde aşağıda "Renderer" kısmı altında Material var, burada bir renk atarsak sisteme verilen particleların rengi değişecek, aynı şekilde atılan particlelar sanki
+Mouse ile seçilmiş gibi küçük karelerin içinde çıkıyor. Bunu engellemek için yukarıda Scene yazısının hemen altındaki View option, orientation, toggle gibi ayarlamaların olduğu yerde
+etrafı birbirine dik iki eksenle çevrilmiş yuvarlak simgenin "Toggle visibility of all Gizmos in the scene view" sağına tıklayıp oradaki "Selection Outline" kısmını kapatıyoruz, böylece her bir particle'ın
+etrafındaki kareler gidiyor
+
+- Particle System'deki duration kısmını kaç saniye particle yaymasını istiyorsak yazacağız ve sonrasında altındaki Loop kısmını da unchecked hale getireceğiz. Aşağı taraflarda 
+Rate Over Time var, o da ayarladığın sürede kaç particle emit edeceğinin göstergesi. Aynı şekilde aşağıda Shape kısmından da particleların hangi geometrik şekilde emit edeceğini 
+gösteriyor.
+
+- Tasarlanmış güzel bir particle buldum, bunu kendi projemde kullanacağım. Assets altına gelip Particle folder'ı oluşturup, indirdiğim ve unitypackage uzantılı dosyayı buraya atıyorum.
+Bunlar arasında Roket jet particleları da var, explosion particleları da var.
+
+- Burada yapacağımız şey şu, eğer Roket bir yere çarparsa, o çarptığı pointi bul ve tam oradan bu particleları çarpma durumlarına uygun olarak yayılmasını sağla. Landing pad'e inince de bir çarpma durumu var
+orada da yeşil renki success particlelarını yay. Burada önce amaç carpısma noktasını bulmak ya da diğer bir yol şu, carpısma olduğunda roket neredeyse particleları yaymak için o konumu kullan.
+
+- Burada önce Roketin parentı olan Player Rocket'in prefab kısmını aç, yani Hierarchy içindeyken sağa doğru yönlenmiş oka tıkla ve saydam beyaz bir ekranda objecti göreceksin. Orada Parent objectin altına
+yani childı olarak hem success particle'ını hem de crash particle'ını ekle. Bu particleları ekledikten sonra player rocket'te dikkate edeceğin şey particlelar loop içinde olmayacak, ve PlayOnAwake kısmı 
+unchecked halinde olacak.
+
+- Prefab ekranı hala açıkken, eklediğimiz Player Rocket altına eklediğimiz particle'ların sağda inspector altındaki Transform'da position değerlerini 0,0,0 olarak güncelliyoruz. Bu şu demek, parent 
+object roket olduğundan dolayı bu particlelar tam olarak roketin üzerinde olacak. Burada kullanılan positionlar, relative positionlar.
+
+- Unity arayüzündeki ayarlamalarımız bitti, şimdi de kodda durumu ayarlamamız gerekecek. CollisionHandler scriptine gelerek SerializeField olacak şekilde ve ParticleSystem tipinde bir değişken 
+tanımlıyorum. Sonrasında da Unity arayüzünde parent olan roket objectine tıklayıp SerializeField olarak tanımladığım değişkenleri particlelara eşliyorum ancak burada şuna çok dikkat et. Bu particle
+dosyalarını Assets içindeki folderdan sakın alma, çünkü oradaki particle objectlerinin scene içinde nerede konumlandığını bilmiyorsun. Senin alacağın particle objectler, Hierarchy altındaki Parent olan
+Player Rocket'in altına attığın ve konumlarını 0,0,0 yaparak tam olarak roketin üstünde olmasını sağladığın particle objectler olacak. Onları sürükle bırakla, inspector altındaki SerializeField içindeki
+o değişkenleri Parent objectin altındaki particlelarla bağla.
+
+- 
+    [SerializeField] ParticleSystem successParticles;
+    [SerializeField] ParticleSystem crashParticles;
+Bu şekilde CollisionHandler içinde tanımladıktan sonra, bu particleların calısacagı conditionlara gelip successParticle.Play(); komutunu yazacağız.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

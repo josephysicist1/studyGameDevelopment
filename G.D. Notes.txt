@@ -1997,9 +1997,158 @@ Buradaki kod Crashed durumunda oyunu başa alıyor, "SceneManager.LoadScene(0);"
 yukarıda using UnityEngine.SceneManagement; satırını yazıp SceneManagement namespace'ine ulaşmamız lazım.
 
 - 
+void ReloadLevel()
+    {
+        SceneManager.LoadScene(0);
+    }
+Bu metodu yazıp default altında çağırarak scene yükleme işlemini daha modüler hale getirdik ancak burada şu eksik var, burada 
+yüklemek istediğimiz scene'in indexine ulaşarak tekrar yükleme yap komutunu vermemiz lazım yoksa her scene için manuel olarak tanımlamak zorunda kalacağız.
 
+- 
+void ReloadLevel()
+    {
+        int currentScene = SceneManager.GetActiveScene().buildIndex;
+        SceneManager.LoadScene(currentScene);
+    }
+Burada içinde bulunduğumuz Scene'in indexini alıyoruz ve roketimiz bir yere çarpması durumunda tekrar scene'i yüklüyoruz.
 
+- Bu aşamada da next scene'i yükleme işlemini halledeceğim. Bunun için önce şu an içinde bulunduğumuz scene'in adını Sandbox'tan "Over" durumuna getiriyorum.
+Scenelere içindeki senaryoya uygun isimler ver.
 
+- Buradaki Fuel tagine sahip objectten kurtul. Sonrasında roketin parent objecti olan Player Rocket'e gel ve sağda inspector altında Prefab kısmından "Apply all" diyerek
+parentta yaptığımız değişikleri prefab'e uygula.
+
+- Scene folderına gelerek sağa tıklayıp create->scene diyerek scene oluşturup tekrardan objectleri içine atabilirsin ancak bu scene'de biraz değişiklik yapıp ikinci scene'i öyle 
+çıkartmak istiyorsan o zaman var olan scene'i, yani Over'ı, kopyalayıp onu değiştirerek ikinci levelını kurabilirsin.
+
+- Scene'i duplicate ettikten sonra aradaki kapsülü yukarı kaldırdık ve roketin alttan geçmesinin yolunu hazırladık. Sonrasında bu scene'i de duplicate ederek kapsül sayısını iki yapıp
+ikisi arasından geçeceği yeni bir scene tasarladık. Scenelerin isimleri Over, Under ve Through
+
+- Sonrasında File->Build Profile kısmına gelerek SceneList'e yeni oluşturduğumuz Scene'leri Asset altından tutup sürükleyerek Scene List'e ekliyoruz. Burada şuna dikkat et, ekledikten sonra
+yanlarında indexler otomatik olarak oluşuyor. Scene sıramalasına yani aslında Level sıralamasına dikkat et.
+
+- 
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+public class CollisionHandler : MonoBehaviour
+{
+    void OnCollisionEnter(Collision collision)
+    {
+        switch (collision.gameObject.tag)
+        {
+            case "Friendly":
+                Debug.Log("BEGIN");
+                break;
+            case "Finish":
+                Debug.Log("FINISH");
+                LoadNextLevel();
+                break;
+            case "Fuel":
+                Debug.Log("FUEL");
+                break;
+            default:
+                Debug.Log("CRASHED");
+                ReloadLevel();
+                break;
+
+        }
+    }
+    void LoadNextLevel()
+    {
+        int nextScene = SceneManager.GetActiveScene().buildIndex + 1;
+        SceneManager.LoadScene(nextScene);
+    }
+    void ReloadLevel()
+    {
+        int currentScene = SceneManager.GetActiveScene().buildIndex;
+        SceneManager.LoadScene(currentScene);
+    }
+}
+Burada son bir ayar kaldı o da scenelerde sona ulaştığının kontrolünü yapmak. Bunun için oyunda kaç tane scene olduğuna kodda erişmen lazım.
+Bu değere SceneManager.sceneCountInBuildSettings ile ulaşıyoruz.
+
+- 
+ void LoadNextLevel()
+    {
+        int nextScene = SceneManager.GetActiveScene().buildIndex + 1;
+        if (nextScene == SceneManager.sceneCountInBuildSettings)
+        {
+            nextScene = 0;
+         }
+        SceneManager.LoadScene(nextScene);
+    }
+LoadNextLevel metodunu, eğer total scene number'a ulaştıysak başa dön şeklinde güncelledik.
+
+- Bu aşamadan sonra Invoke kullanacagız. Bunu kullanma amacımız, bir yere carptıktan sonra hemen başa dönmesin, biraz delay olsun ve carptıgını görsün istiyoruz.
+
+- Using Invoke() allows us to call a method so it executes after a delay of x seconds, yani bir metodu birkaç saniye sonra çalıştırmak için kullandıgımız bir şey.
+Invoke metodunun syntax'ı Invoke("MethodName", delayInSeconds); Burada dikkat et, method adını string reference olarak veriyoruz.
+
+-
+default:
+      Debug.Log("CRASHED");
+      Invoke("ReloadLevel", 2f);
+      break;
+
+Switch'in default kısmında Invoke metodunu yazmana ragmen calısmadı neden ? Bunun sebebi tanımladıgın LoadNextLevel ve ReloadLevel metodlarını onCollisionEnter metodu içine koyman.
+Invoke metodu, içinde bulundugun metodu taramaz, o metodun dışındakileri tarayıp da gecikmeli cagırmak istediğin metodu bulur. Bundan dolayı LoadNextLevel ve ReloadLevel metodlarını
+onCollisionEnter metodu dışına al.
+
+-
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+public class CollisionHandler : MonoBehaviour
+{
+    void OnCollisionEnter(Collision collision)
+    {
+        switch (collision.gameObject.tag)
+        {
+            case "Friendly":
+                Debug.Log("BEGIN");
+                break;
+            case "Finish":
+                Debug.Log("FINISH");
+                LoadNextLevel();
+                break;
+            case "Fuel":
+                Debug.Log("FUEL");
+                break;
+            default:
+                Debug.Log("CRASHED");
+                Invoke("ReloadLevel", 2f);
+                break;
+
+        }
+    }
+    void LoadNextLevel()
+    {
+        int nextScene = SceneManager.GetActiveScene().buildIndex + 1;
+        if (nextScene == SceneManager.sceneCountInBuildSettings)
+        {
+            nextScene = 0;
+         }
+        SceneManager.LoadScene(nextScene);
+    }
+    void ReloadLevel()
+    {
+        int currentScene = SceneManager.GetActiveScene().buildIndex;
+        SceneManager.LoadScene(currentScene);
+    }
+}
+Son hali
+
+- Bu kısım da tamamlandıktan sonra şimdi de bir yere çarpma durumunda ses çıkmasını ve particle efektini eklemeyi halledeceğim. Aynı zamanda burada şöyle bir sorun var.
+Çrash işlemi gerçekleştikten sonra bile space tuşuna basınca thrusterlar çalışıyor, bunun olmasını istemiyorum. Çarpma gerçekleşince controlleri devre dışı bırakmam lazım.
+Bundan dolayı çarpma işlemi sonrasında gerçekleşecek olayları bir metod altında toplayıp switch'in default kısmında o metodu cagıracagım. Burada yapacağım şey ise 
+Movement scriptine giderek orada Enable haline getirdiğim thrust ve rotation'ı disable durumuna sokmam. 
+
+- Burada roketin parent objecti olan Player Rocket'e iki tane script bağlı. Bunlardan biri Movement diğeri ise CollisionHandler. Player Rocket'in inspectorı altında
+bu iki script'in yanında checked işaretleri belli. Burada şunu yapabiliyorum, CollisionHandler scriptinden vereceğim bir komutla Movement scriptini devre dışı bırakabiliyorum, yani bir 
+süre unchecked duruma sokabiliyorum.
+
+- Script de olsa Movement bir component ve buna erişebilmek için GetComponent'ı kullanacağım.
 
 
 

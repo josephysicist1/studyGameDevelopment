@@ -12,15 +12,33 @@ public class CollisionHandler : MonoBehaviour
                 break;
             case "Finish":
                 Debug.Log("FINISH");
+                LoadNextLevel();
                 break;
             case "Fuel":
                 Debug.Log("FUEL");
                 break;
             default:
-                Debug.Log("CRASHED");
-                SceneManager.LoadScene(0);
+                StartCrashSequence();
                 break;
 
         }
+    }
+    void StartCrashSequence()
+    {
+        Invoke("ReloadLevel", 2f);
+    }
+    void LoadNextLevel()
+    {
+        int nextScene = SceneManager.GetActiveScene().buildIndex + 1;
+        if (nextScene == SceneManager.sceneCountInBuildSettings)
+        {
+            nextScene = 0;
+         }
+        SceneManager.LoadScene(nextScene);
+    }
+    void ReloadLevel()
+    {
+        int currentScene = SceneManager.GetActiveScene().buildIndex;
+        SceneManager.LoadScene(currentScene);
     }
 }

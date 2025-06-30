@@ -1898,12 +1898,105 @@ public class Movement : MonoBehaviour
 }
     
 
+- Şimdi Launch Pad'e gelip buradan iki tane tag ekliyoruz, bir tanesi "Friendly", diğeri de "Finish". Sonrasında 3 boyutlu bir sphere ekleyip z koordinatını 0'a ayarlıyoruz.
+Buna da yeni bir tag ekliyoruz "Fuel". Sonrasında da Landing Pad'in tagini Friendly, Launch Pad'in tagini Finish, Sphere tagini de Fuel olarak ayarlıyoruz.
+
+- Script dosyasına gelerek CollisionHandler adında monobehavior script oluşturduk ve bunu da roketin parenti olan Player Rocket ile bağladım.
+
+- Bu scriptte switch statement kullanacağız. Switch statements are a conditional like if/else statements and allow us to compare a single variable to a series of constants
+Switch statement syntax'ı
+
+switch (variabletoCompare)
+{
+	case ValueA:	
+		Statements;
+		break;
+	case ValueB:
+		Statements;
+		break;
+	default:
+		Statements;
+		break;
+}
+
+- Bu scriptte onCollisionEnter metodu kullanacağız, bu metodda carptıgımız objectle ilgili metodun parametresinden dolayı bilgi alabiliyoruz. 
+void OnCollisionEnter(Collision collision)
+    {
+        
+    }
+Bu metodun içinde çarptığımız objectin tagine "other.gameObject.tag" diyerek erişebiliyoruz. Burada dikkat etmen gereken nokta, dönecek tag değeri string olarak 
+gelecek.
+
 - 
+using UnityEngine;
 
+public class CollisionHandler : MonoBehaviour
+{
+    void OnCollisionEnter(Collision collision)
+    {
+        switch (collision.gameObject.tag)
+        {
+            case "Friendly":
+                Debug.Log("BEGIN");
+                break;
+            case "Finish":
+                Debug.Log("FINISH");
+                break;
+            case "Fuel":
+                Debug.Log("FUEL");
+                break;
+            default:
+		Debug.Log("CRASHED");
+                break;
 
+        }
+    }
+}
 
+- Scene Management ile ilgileneceğiz. File -> Build Profiles tıklayınca Windows, Mac, Linux ... gibi ifadelerin oldugu bir ekran acılacak. Windows kısmının sağ tarafında "Active" yazıyor.
+That allows us to build to a whole bunch of different platforms. Burada Windows için Web için mobil platformlar için ya da diğer platformlar için ayarlamalar yapıyoruz.
+En üstte SceneList yazan kısma geliyoruz. What are the scenes that we will have in our game ? Burada, bu projenin başlarında sildiğim SampleScene'i görüyorum ancak yanında deleted yazıyor.
+Bunu tamamen bu listeden kaldırdıktan sonra sağ altta "Add Open Scenes" yazısına tıklayınca öncesinde oluşturdugum Sandbox scene'inin buraya eklendiğini görüyorum.
 
+- Scenes are a way for us to manage for our particular project to manage levels. Yani her bir scene aslında oyunda bir level'ı temsil edecek. 
 
+- Scene List'te Scenes/Sandbox yanında 0 sayısını görüyorsun, bu sayı bu scene'in indexi. Bu önemli bir information, ileride bunu kullanacagım.
+
+- Burada yapacagımız şey, bir objecte çarparsan Scene tekrar yüklemek. Unity dökümantasyonunda SceneManager kısmını incelersen orada Load Scene, Merge Scene gibi static 
+metodları  göreceksin. Mesela Load Scene metoduna parametre olarak göndereceğimiz değerlerden biri de sceneBuildIndex. Bu index az önce SceneList'deki, scene adlarının yanındaki
+indexi temsil ediyor ya da aynı parametrenin oldugu yere Scene ismini string olarak da gönderebilirsin.
+
+- 
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+public class CollisionHandler : MonoBehaviour
+{
+    void OnCollisionEnter(Collision collision)
+    {
+        switch (collision.gameObject.tag)
+        {
+            case "Friendly":
+                Debug.Log("BEGIN");
+                break;
+            case "Finish":
+                Debug.Log("FINISH");
+                break;
+            case "Fuel":
+                Debug.Log("FUEL");
+                break;
+            default:
+                Debug.Log("CRASHED");
+                SceneManager.LoadScene(0);
+                break;
+
+        }
+    }
+}
+Buradaki kod Crashed durumunda oyunu başa alıyor, "SceneManager.LoadScene(0);" satırı bunu sağlıyor. Bu satırı yazabilmemiz için de 
+yukarıda using UnityEngine.SceneManagement; satırını yazıp SceneManagement namespace'ine ulaşmamız lazım.
+
+- 
 
 
 
